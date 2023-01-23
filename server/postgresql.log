@@ -417,3 +417,32 @@
 	program TEXT REFERENCES Branches(program) NOT NULL,
 	CONSTRAINT unique_BP UNIQUE (branch, program)
 	);
+2023-01-23 19:26:14.840 CET [5080] ERROR:  syntax error at or near "SLEECT" at character 1
+2023-01-23 19:26:14.840 CET [5080] STATEMENT:  SLEECT * FROM Branches
+	;
+2023-01-23 19:26:51.380 CET [5080] ERROR:  relation "studentbranches" does not exist at character 15
+2023-01-23 19:26:51.380 CET [5080] STATEMENT:  SELECT * FROM STudentBranches
+	;
+2023-01-23 19:27:46.372 CET [5080] ERROR:  duplicate key value violates unique constraint "branches_pkey"
+2023-01-23 19:27:46.372 CET [5080] DETAIL:  Key (name)=(B1) already exists.
+2023-01-23 19:27:46.372 CET [5080] STATEMENT:  INSERT INTO Branches VALUES ('B1','Prog2');
+2023-01-23 19:28:20.893 CET [5080] ERROR:  syntax error at or near "(" at character 75
+2023-01-23 19:28:20.893 CET [5080] STATEMENT:  CREATE TABLE Branches(
+	    name TEXT,
+	    program TEXT NOT NULL
+	    UNIQUE(name, program)
+	);
+2023-01-23 19:28:43.095 CET [5080] ERROR:  syntax error at or near "(" at character 75
+2023-01-23 19:28:43.095 CET [5080] STATEMENT:  CREATE TABLE Branches(
+	    name TEXT,
+	    program TEXT NOT NULL
+	    UNIQUE(name, program)
+	);
+2023-01-23 19:30:52.244 CET [5080] ERROR:  column "branch" named in key does not exist at character 220
+2023-01-23 19:30:52.244 CET [5080] STATEMENT:  CREATE TABLE MandatoryProgram(
+	course CHAR(6) REFERENCES Courses(code) NOT NULL,
+	program TEXT NOT NULL,
+	FOREIGN KEY (course) REFERENCES Courses (code),
+	FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
+	PRIMARY KEY (course, branch, program)
+	);

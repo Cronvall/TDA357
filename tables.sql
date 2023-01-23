@@ -29,12 +29,13 @@ FOREIGN KEY (code) REFERENCES Courses(code)
 );
 
 
---TODO FIX, problem with the referencing of branch & program
-CREATE TABLE StudentBranches (
-student CHAR(10) REFERENCES Students(idnr) NOT NULL PRIMARY KEY,
-branch TEXT REFERENCES Branches(name) NOT NULL,
-program TEXT REFERENCES Branches(program) NOT NULL,
-CONSTRAINT unique_BP UNIQUE (branch, program)
+CREATE TABLE StudentBranches(
+student CHAR(10) NOT NULL,
+branch TEXT NOT NULL,
+program TEXT NOT NULL,
+FOREIGN KEY (student) REFERENCES Students (idnr),
+FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
+PRIMARY KEY (student, branch, program)
 );
 
 
@@ -56,12 +57,13 @@ PRIMARY KEY (course, program)
 );
 
 
--- TODO same problem as StudentBranches
 CREATE TABLE MandatoryBranch(
-course CHAR(6) REFERENCES Courses(code) NOT NULL,
-branch TEXT REFERENCES Branches(name) NOT NULL,
-program TEXT REFERENCES Branches(program) NOT NULL,
-PRIMARY KEY(course, branch, program)
+course CHAR(6) NOT NULL,
+branch TEXT NOT NULL,
+program TEXT NOT NULL,
+FOREIGN KEY (course) REFERENCES Courses (code),
+FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
+PRIMARY KEY (course, branch, program)
 );
 
 
