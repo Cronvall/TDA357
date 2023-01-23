@@ -1,0 +1,419 @@
+2023-01-23 13:54:33.109 CET [99550] LOG:  starting PostgreSQL 14.6 on aarch64-apple-darwin20.6.0, compiled by Apple clang version 12.0.5 (clang-1205.0.22.9), 64-bit
+2023-01-23 13:54:33.110 CET [99550] LOG:  listening on IPv6 address "::1", port 5432
+2023-01-23 13:54:33.111 CET [99550] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2023-01-23 13:54:33.111 CET [99550] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+2023-01-23 13:54:33.113 CET [99551] LOG:  database system was shut down at 2023-01-23 13:54:33 CET
+2023-01-23 13:54:33.114 CET [99550] LOG:  database system is ready to accept connections
+2023-01-23 14:03:29.557 CET [113] ERROR:  syntax error at or near "(" at character 33
+2023-01-23 14:03:29.557 CET [113] STATEMENT:  CREATE TABLE Students (
+	idnr INT(10) NOT NULL,
+	name TEXT NOT NULL,
+	login TEXT NOT NULL,
+	program TEXT NOT NULL
+	);
+2023-01-23 14:12:14.778 CET [113] ERROR:  syntax error at or near "CREATE" at character 45
+2023-01-23 14:12:14.778 CET [113] STATEMENT:  ALTER TABLE Students
+	ADD PRIMARY KEY (idnr)
+	CREATE TABLE Branches (
+	name TEXT NOT NULL,
+	program TEXT NOT NULL,
+	PRIMARY KEY (name, program)
+	);
+2023-01-23 14:13:49.439 CET [113] ERROR:  syntax error at or near "DROP" at character 45
+2023-01-23 14:13:49.439 CET [113] STATEMENT:  ALTER TABLE Students
+	ADD PRIMARY KEY (idnr)
+	DROP TABLE Students
+	DROP TABLE Students;
+2023-01-23 14:14:08.230 CET [113] ERROR:  syntax error at or near "clear" at character 1
+2023-01-23 14:14:08.230 CET [113] STATEMENT:  clear
+	CREATE TABLE Students (
+	idnr CHAR(10) NOT NULL,
+	name TEXT NOT NULL,
+	login TEXT NOT NULL,
+	program TEXT NOT NULL,
+	PRIMARY KEY (idnr)
+	);
+2023-01-23 14:20:23.898 CET [722] ERROR:  syntax error at or near "(" at character 115
+2023-01-23 14:20:23.898 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) NOT NULL,
+	branch TEXT NOT NULL,
+	program TEXT NOT NULL
+	PRIMARY KEY (student)
+	);
+2023-01-23 14:30:06.911 CET [722] ERROR:  syntax error at or near "FOREIGN" at character 96
+2023-01-23 14:30:06.911 CET [722] STATEMENT:  CREATE TABLE LimitedCourses (
+	code CHAR(6) NOT NULL,
+	capacity INT NOT NULL,
+	PRIMARY KEY (code)
+	FOREIGN KEY (code) REFERENCES Courses(code)
+	);
+2023-01-23 14:33:32.858 CET [722] ERROR:  syntax error at or near "CREATE" at character 28
+2023-01-23 14:33:32.858 CET [722] STATEMENT:  DROP TABLE StudentBranches
+	CREATE TABLE StudentBranches (
+	student CHAR(10) NOT NULL,
+	branch TEXT NOT NULL,
+	program TEXT NOT NULL,
+	PRIMARY KEY (student),
+	FOREIGN KEY (student) REFERENCES Students(idnr),
+	FOREIGN KEY (branch) REFERENCES Branches(branch),
+	FOREIGN KEY (program) REFERENCES Branches(program)
+	);
+2023-01-23 14:33:40.887 CET [722] ERROR:  relation "studentbranches" already exists
+2023-01-23 14:33:40.887 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) NOT NULL,
+	branch TEXT NOT NULL,
+	program TEXT NOT NULL,
+	PRIMARY KEY (student),
+	FOREIGN KEY (student) REFERENCES Students(idnr),
+	FOREIGN KEY (branch) REFERENCES Branches(branch),
+	FOREIGN KEY (program) REFERENCES Branches(program)
+	);
+2023-01-23 14:34:10.577 CET [722] ERROR:  column "branch" referenced in foreign key constraint does not exist
+2023-01-23 14:34:10.577 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) NOT NULL,
+	branch TEXT NOT NULL,
+	program TEXT NOT NULL,
+	PRIMARY KEY (student),
+	FOREIGN KEY (student) REFERENCES Students(idnr),
+	FOREIGN KEY (branch) REFERENCES Branches(branch),
+	FOREIGN KEY (program) REFERENCES Branches(program)
+	);
+2023-01-23 14:34:30.265 CET [722] ERROR:  column "name" referenced in foreign key constraint does not exist
+2023-01-23 14:34:30.265 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) NOT NULL,
+	branch TEXT NOT NULL,
+	program TEXT NOT NULL,
+	PRIMARY KEY (student),
+	FOREIGN KEY (student) REFERENCES Students(idnr),
+	FOREIGN KEY (name) REFERENCES Branches(name),
+	FOREIGN KEY (program) REFERENCES Branches(program)
+	);
+2023-01-23 14:35:12.031 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 14:35:12.031 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) NOT NULL,
+	branch TEXT NOT NULL,
+	program TEXT NOT NULL,
+	PRIMARY KEY (student),
+	FOREIGN KEY (student) REFERENCES Students(idnr),
+	FOREIGN KEY (branch) REFERENCES Branches(name),
+	FOREIGN KEY (program) REFERENCES Branches(program)
+	);
+2023-01-23 14:36:48.118 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 14:36:48.118 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) NOT NULL,
+	branch TEXT NOT NULL,
+	program TEXT NOT NULL,
+	PRIMARY KEY (student),
+	FOREIGN KEY (student) REFERENCES Students(idnr),
+	FOREIGN KEY (branch) REFERENCES Branches(name),
+	FOREIGN KEY (program) REFERENCES Branches(program)
+	);
+2023-01-23 14:38:55.467 CET [722] ERROR:  syntax error at or near ")" at character 208
+2023-01-23 14:38:55.467 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY (student),
+	);
+2023-01-23 14:39:04.542 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 14:39:04.542 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY (student)
+	);
+2023-01-23 14:42:00.362 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 14:42:00.362 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY (student)
+	);
+2023-01-23 14:45:26.669 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 14:45:26.669 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY (student)
+	);
+2023-01-23 14:50:29.514 CET [722] ERROR:  syntax error at or near "(" at character 132
+2023-01-23 14:50:29.514 CET [722] STATEMENT:  CREATE TABLE Classified(
+	course CHAR(6) REFERENCES Courses(code),
+	classification TEXT REFERENCES Classifications(name)
+	PRIMARY KEY (course, classification)
+	);
+2023-01-23 14:53:28.891 CET [722] ERROR:  cannot drop table classifications because other objects depend on it
+2023-01-23 14:53:28.891 CET [722] DETAIL:  constraint classified_classification_fkey on table classified depends on table classifications
+2023-01-23 14:53:28.891 CET [722] HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+2023-01-23 14:53:28.891 CET [722] STATEMENT:  DROP TABLE Classifications
+	;
+2023-01-23 14:53:43.493 CET [722] ERROR:  syntax error at or near "DROP" at character 23
+2023-01-23 14:53:43.493 CET [722] STATEMENT:  DROP TABLE Classified
+	DROP TABLE Classifications
+	;
+2023-01-23 14:54:08.568 CET [722] ERROR:  syntax error at or near "classified" at character 12
+2023-01-23 14:54:08.568 CET [722] STATEMENT:  TABLE DROP classified;
+2023-01-23 14:55:13.385 CET [722] ERROR:  insert or update on table "classified" violates foreign key constraint "classified_classification_fkey"
+2023-01-23 14:55:13.385 CET [722] DETAIL:  Key (classification)=(meme) is not present in table "classifications".
+2023-01-23 14:55:13.385 CET [722] STATEMENT:  INSERT INTO Classified VALUES ('CCC444','meme');
+2023-01-23 14:58:20.045 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 14:58:20.045 CET [722] STATEMENT:  CREATE TABLE MandatoryBranch(
+	course CHAR(6) REFERENCES Courses(code) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY(course, branch, program)
+	);
+2023-01-23 15:00:02.120 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 15:00:02.120 CET [722] STATEMENT:  CREATE TABLE MandatoryBranch(
+	course CHAR(6) REFERENCES Courses(code) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY(course, branch, program)
+	);
+2023-01-23 15:01:31.480 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 15:01:31.480 CET [722] STATEMENT:  CREATE TABLE RecommendedBranch(
+	course CHAR(6) REFERENCES Courses(code) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY(course, branch, program)
+	);
+2023-01-23 15:07:07.886 CET [722] ERROR:  invalid input syntax for type integer: "U" at character 48
+2023-01-23 15:07:07.886 CET [722] STATEMENT:  INSERT INTO Taken VALUES('2222222222','CCC111','U');
+2023-01-23 15:07:07.887 CET [722] ERROR:  invalid input syntax for type integer: "U" at character 48
+2023-01-23 15:07:07.887 CET [722] STATEMENT:  INSERT INTO Taken VALUES('2222222222','CCC222','U');
+2023-01-23 15:07:07.887 CET [722] ERROR:  invalid input syntax for type integer: "U" at character 48
+2023-01-23 15:07:07.887 CET [722] STATEMENT:  INSERT INTO Taken VALUES('2222222222','CCC444','U');
+2023-01-23 15:07:31.244 CET [722] ERROR:  operator does not exist: character = integer at character 184
+2023-01-23 15:07:31.244 CET [722] HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+2023-01-23 15:07:31.244 CET [722] STATEMENT:  CREATE TABLE Taken(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES Courses(code) NOT NULL,
+	grade CHAR(1) DEFAULT 0,
+	CONSTRAINT validGrade CHECK (grade in ('U', 3, 4, 5)),
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 15:07:59.497 CET [722] ERROR:  operator does not exist: character = integer at character 184
+2023-01-23 15:07:59.497 CET [722] HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+2023-01-23 15:07:59.497 CET [722] STATEMENT:  CREATE TABLE Taken(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES Courses(code) NOT NULL,
+	grade CHAR(1) DEFAULT 0,
+	CONSTRAINT validGrade CHECK (grade IN ('U', 3, 4, 5)),
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 15:10:41.688 CET [722] ERROR:  syntax error at or near "CURRENT_TIMESTAMP" at character 146
+2023-01-23 15:10:41.688 CET [722] STATEMENT:  CREATE TABLE WaitingList(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES LimitedCourses(code) NOT NULL,
+	position CURRENT_TIMESTAMP NOT NULL,
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 16:14:44.231 CET [722] ERROR:  syntax error at or near "WHERE" at character 169
+2023-01-23 16:14:44.231 CET [722] STATEMENT:  CREATE TABLE WaitingList(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES LimitedCourses(code) NOT NULL,
+	position INT DEFAULT COUNT(
+	    WHERE WaitingList(course) = course
+	),
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 16:16:26.325 CET [722] ERROR:  syntax error at or near "select" at character 150
+2023-01-23 16:16:26.325 CET [722] STATEMENT:  CREATE TABLE WaitingList(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES LimitedCourses(code) NOT NULL,
+	position INT select sum(
+	    CASE Position WHEN 'Manager' THEN 1 ELSE 0 end)
+	    from WaitingList
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 16:16:36.046 CET [722] ERROR:  syntax error at or near "SELECT" at character 150
+2023-01-23 16:16:36.046 CET [722] STATEMENT:  CREATE TABLE WaitingList(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES LimitedCourses(code) NOT NULL,
+	position INT SELECT sum(
+	    CASE Position WHEN 'Manager' THEN 1 ELSE 0 end)
+	    from WaitingList
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 16:18:28.005 CET [722] ERROR:  syntax error at or near "SELECT" at character 150
+2023-01-23 16:18:28.005 CET [722] STATEMENT:  CREATE TABLE WaitingList(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES LimitedCourses(code) NOT NULL,
+	position INT SELECT sum(
+	    CASE Position WHEN course THEN 1 ELSE 0 end)
+	    from WaitingList
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 16:18:58.035 CET [722] ERROR:  syntax error at or near "(" at character 181
+2023-01-23 16:18:58.035 CET [722] STATEMENT:  CREATE TABLE WaitingList(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES LimitedCourses(code) NOT NULL,
+	position INT DEFAULT 1 NOT NULL
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 16:19:33.361 CET [722] ERROR:  syntax error at or near "SELECT" at character 150
+2023-01-23 16:19:33.361 CET [722] STATEMENT:  CREATE TABLE WaitingList(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES LimitedCourses(code) NOT NULL,
+	position INT SELECT sum(CASE Position WHEN course THEN 1 ELSE 0 end)from WaitingList,
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 16:21:01.246 CET [722] ERROR:  relation "studentbranches" does not exist at character 15
+2023-01-23 16:21:01.246 CET [722] STATEMENT:  SELECT * FROM StudentBranches
+	;
+2023-01-23 16:21:16.983 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 16:21:16.983 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY (student)
+	);
+2023-01-23 17:37:32.092 CET [722] ERROR:  column "position" is of type time without time zone but expression is of type integer at character 54
+2023-01-23 17:37:32.092 CET [722] HINT:  You will need to rewrite or cast the expression.
+2023-01-23 17:37:32.092 CET [722] STATEMENT:  INSERT INTO WaitingList VALUES('3333333333','CCC222',1);
+2023-01-23 17:37:32.093 CET [722] ERROR:  column "position" is of type time without time zone but expression is of type integer at character 54
+2023-01-23 17:37:32.093 CET [722] HINT:  You will need to rewrite or cast the expression.
+2023-01-23 17:37:32.093 CET [722] STATEMENT:  INSERT INTO WaitingList VALUES('3333333333','CCC333',1);
+2023-01-23 17:37:32.093 CET [722] ERROR:  column "position" is of type time without time zone but expression is of type integer at character 54
+2023-01-23 17:37:32.093 CET [722] HINT:  You will need to rewrite or cast the expression.
+2023-01-23 17:37:32.093 CET [722] STATEMENT:  INSERT INTO WaitingList VALUES('2222222222','CCC333',2);
+2023-01-23 17:38:30.584 CET [722] ERROR:  column "position" is of type time without time zone but default expression is of type date
+2023-01-23 17:38:30.584 CET [722] HINT:  You will need to rewrite or cast the expression.
+2023-01-23 17:38:30.584 CET [722] STATEMENT:  CREATE TABLE WaitingList(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES LimitedCourses(code) NOT NULL,
+	position TIME DEFAULT CURRENT_DATE,
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 17:39:08.594 CET [722] ERROR:  column "position" is of type time without time zone but default expression is of type date
+2023-01-23 17:39:08.594 CET [722] HINT:  You will need to rewrite or cast the expression.
+2023-01-23 17:39:08.594 CET [722] STATEMENT:  CREATE TABLE WaitingList(
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	course CHAR(6) REFERENCES LimitedCourses(code) NOT NULL,
+	position TIME DEFAULT CURRENT_DATE,
+	PRIMARY KEY (student, course)
+	);
+2023-01-23 17:54:58.536 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 17:54:58.536 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY (student)
+	);
+2023-01-23 17:59:58.022 CET [722] ERROR:  syntax error at or near "name" at character 75
+2023-01-23 17:59:58.022 CET [722] STATEMENT:  CREATE TABLE Branches (
+	name TEXT NOT NULL,
+	program TEXT NOT NULL,
+	UNIQUE name
+	UNIQUE program
+	PRIMARY KEY(name, program)
+	);
+2023-01-23 18:00:08.417 CET [722] ERROR:  syntax error at or near "name" at character 75
+2023-01-23 18:00:08.417 CET [722] STATEMENT:  CREATE TABLE Branches (
+	name TEXT NOT NULL,
+	program TEXT NOT NULL,
+	UNIQUE name,
+	UNIQUE program,
+	PRIMARY KEY(name, program)
+	);
+2023-01-23 18:01:44.524 CET [722] ERROR:  duplicate key value violates unique constraint "branches_program_key"
+2023-01-23 18:01:44.524 CET [722] DETAIL:  Key (program)=(Prog1) already exists.
+2023-01-23 18:01:44.524 CET [722] STATEMENT:  INSERT INTO Branches VALUES ('B2','Prog1');
+2023-01-23 18:01:44.524 CET [722] ERROR:  duplicate key value violates unique constraint "branches_name_key"
+2023-01-23 18:01:44.524 CET [722] DETAIL:  Key (name)=(B1) already exists.
+2023-01-23 18:01:44.524 CET [722] STATEMENT:  INSERT INTO Branches VALUES ('B1','Prog2');
+2023-01-23 18:02:48.561 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 18:02:48.561 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY (student)
+	);
+2023-01-23 18:03:34.981 CET [722] ERROR:  syntax error at or near "UNIQUE" at character 207
+2023-01-23 18:03:34.981 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY (student)
+	UNIQUE (branch, program)
+	);
+2023-01-23 18:03:47.378 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 18:03:47.378 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY (student),
+	UNIQUE (branch, program)
+	);
+2023-01-23 18:04:08.855 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 18:04:08.855 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	UNIQUE (branch, program),
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	PRIMARY KEY (student)
+	);
+2023-01-23 18:04:35.441 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 18:04:35.441 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	UNIQUE (branch, program),
+	PRIMARY KEY (student)
+	);
+2023-01-23 18:05:07.138 CET [722] ERROR:  syntax error at or near "(" at character 201
+2023-01-23 18:05:07.138 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	UNIQUE (Branches(name), Branches(program)),
+	PRIMARY KEY (student)
+	);
+2023-01-23 18:05:27.391 CET [722] ERROR:  column "name" named in key does not exist at character 185
+2023-01-23 18:05:27.391 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	UNIQUE (name, program),
+	PRIMARY KEY (student)
+	);
+2023-01-23 18:05:42.539 CET [722] ERROR:  column "name" named in key does not exist at character 197
+2023-01-23 18:05:42.539 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL PRIMARY KEY,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	UNIQUE (name, program)
+	);
+2023-01-23 18:25:47.091 CET [722] ERROR:  syntax error at or near ")" at character 197
+2023-01-23 18:25:47.091 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL PRIMARY KEY,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	);
+2023-01-23 18:26:01.320 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 18:26:01.320 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL PRIMARY KEY,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL
+	);
+2023-01-23 18:26:22.702 CET [722] ERROR:  syntax error at or near "(" at character 224
+2023-01-23 18:26:22.702 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL PRIMARY KEY,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL
+	CONSTRAINT unique_NP UNIQUE (branch, program)
+	);
+2023-01-23 18:26:34.920 CET [722] ERROR:  relation "unique_np" already exists
+2023-01-23 18:26:34.920 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL PRIMARY KEY,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	CONSTRAINT unique_NP UNIQUE (branch, program)
+	);
+2023-01-23 18:26:44.155 CET [722] ERROR:  there is no unique constraint matching given keys for referenced table "branches"
+2023-01-23 18:26:44.155 CET [722] STATEMENT:  CREATE TABLE StudentBranches (
+	student CHAR(10) REFERENCES Students(idnr) NOT NULL PRIMARY KEY,
+	branch TEXT REFERENCES Branches(name) NOT NULL,
+	program TEXT REFERENCES Branches(program) NOT NULL,
+	CONSTRAINT unique_BP UNIQUE (branch, program)
+	);
