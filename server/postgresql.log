@@ -446,3 +446,18 @@
 	FOREIGN KEY (branch, program) REFERENCES Branches (name, program),
 	PRIMARY KEY (course, branch, program)
 	);
+2023-01-24 15:22:44.872 CET [5080] ERROR:  column reference "program" is ambiguous at character 59
+2023-01-24 15:22:44.872 CET [5080] STATEMENT:  CREATE VIEW BasicInformation AS
+	SELECT idnr, name, login, program, branch
+	FROM Students, StudentBranches
+	WHERE  Students.idnr = StudentBranches.student;
+2023-01-24 15:29:56.347 CET [5080] ERROR:  column "credits" does not exist at character 63
+2023-01-24 15:29:56.347 CET [5080] STATEMENT:  CREATE VIEW FinishedCourses AS
+	SELECT student, course, grade, credits
+	FROM Students, Taken
+	WHERE Students.idnr = Taken.student;
+2023-01-24 15:30:59.239 CET [5080] ERROR:  syntax error at or near "," at character 136
+2023-01-24 15:30:59.239 CET [5080] STATEMENT:  CREATE VIEW FinishedCourses AS
+	SELECT student, course, grade, credits
+	FROM Students, Taken, Courses
+	WHERE Students.idnr = Taken.student, Taken.course = Courses.code;
