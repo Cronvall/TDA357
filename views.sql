@@ -21,6 +21,10 @@ WHERE grade IN ('3','4','5');
 
 -- TODO Registrations View
 
+CREATE VIEW Registrations AS
+SELECT student, position
+FROM Registered, WaitingList;
+
 -- TODO Unread mandatory View
 
 -- TODO PathToGraduation View
