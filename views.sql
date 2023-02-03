@@ -1,5 +1,5 @@
 CREATE VIEW BasicInformation AS
-SELECT idnr, name, login, Students.program, branch
+SELECT idnr, name, login, Students.program AS program, branch
 FROM Students 
 LEFT JOIN StudentBranches
 ON Students.idnr = StudentBranches.student;
@@ -18,19 +18,33 @@ FROM FinishedCourses
 WHERE grade IN ('3','4','5');
 
 
--- TODO Registrations View
-
 CREATE VIEW Registrations AS
-Select student, course, 'registered' AS status 
+SELECT student, course, 'registered' AS status 
 FROM Students, Registered
 WHERE Students.idnr = Registered.student
 UNION
-Select student, course, 'waiting' As status
+Select student, course, 'waiting' AS status
 FROM Students, Waitinglist
 WHERE Students.idnr = Waitinglist.student;
 
 
--- TODO Unread mandatory View
+CREATE VIEW UnreadMandatory AS
+SELECT idnr AS student, course
+FROM BasicInformation
+JOIN MandatoryProgram
+ON BasicInformation.program = MandatoryProgram.program
+UNION
+SELECT idnr AS student, course
+FROM BasicInformation
+JOIN MandatoryBranch
+ON BasicInformation.program = MandatoryBranch.program
+AND BasicInformation.branch = MandatoryBranch.branch;
+EXCEPT
+SELECT student, course
+FROM BasicInformation
+JOIN PassedCourses
+ON BasicInformation.idnr = PassedCourses.student;
 
+SELECT * FROM UnreadMandatory;
 
 -- TODO PathToGraduation View
