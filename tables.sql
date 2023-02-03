@@ -28,12 +28,12 @@ FOREIGN KEY (code) REFERENCES Courses
 
 
 CREATE TABLE StudentBranches(
-student CHAR(10) NOT NULL PRIMARY KEY,
-branch TEXT NOT NULL,
-program TEXT NOT NULL,
+student CHAR(10) NOT NULL PRIMARY KEY
+CHECK (student SIMILAR TO '[0-9]{10}'),
+branch TEXT,
+program TEXT,
 FOREIGN KEY (student) REFERENCES Students,
-FOREIGN KEY (branch, program) REFERENCES Branches
-);
+FOREIGN KEY (branch, program) REFERENCES Branches);
 
 
 CREATE TABLE Classifications(
