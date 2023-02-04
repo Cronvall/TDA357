@@ -38,13 +38,31 @@ SELECT idnr AS student, course
 FROM BasicInformation
 JOIN MandatoryBranch
 ON BasicInformation.program = MandatoryBranch.program
-AND BasicInformation.branch = MandatoryBranch.branch;
+AND BasicInformation.branch = MandatoryBranch.branch
 EXCEPT
 SELECT student, course
 FROM BasicInformation
 JOIN PassedCourses
 ON BasicInformation.idnr = PassedCourses.student;
 
-SELECT * FROM UnreadMandatory;
-
 -- TODO PathToGraduation View
+
+CREATE OR REPLACE VIEW PathToGraduation AS
+SELECT
+    idnr AS student,
+    COALESCE(SUM(credits), 0) AS totalCredits,
+    COUNT(UnreadMandatory.course) AS mandatoryLeft
+FROM BasicInformation
+    LEFT JOIN PassedCourses
+    ON BasicInformation.idnr = PassedCourses.student
+    LEFT JOIN UnreadMandatory
+    ON BasicInformation.idnr = UnreadMandatory.student
+    GROUP BY (BasicInformation.idnr)
+ORDER BY idnr ASC;
+
+SELECT * FROM PathToGraduation;
+
+
+        
+
+-- , mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified
