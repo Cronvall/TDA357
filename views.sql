@@ -50,19 +50,30 @@ ON BasicInformation.idnr = PassedCourses.student;
 CREATE OR REPLACE VIEW PathToGraduation AS
 SELECT
     idnr AS student,
-    COALESCE(SUM(credits), 0) AS totalCredits,
+    COALESCE(SUM(PassedCourses.credits), 0) AS totalCredits,
     COUNT(UnreadMandatory.course) AS mandatoryLeft
 FROM BasicInformation
-    LEFT JOIN PassedCourses
-    ON BasicInformation.idnr = PassedCourses.student
-    LEFT JOIN UnreadMandatory
-    ON BasicInformation.idnr = UnreadMandatory.student
-    GROUP BY (BasicInformation.idnr)
-ORDER BY idnr ASC;
+LEFT JOIN 
+    PassedCourses
+ON BasicInformation.idnr = PassedCourses.student
+LEFT JOIN
+    UnreadMandatory
+ON BasicInformation.idnr = UnreadMandatory.student
+GROUP BY (BasicInformation.idnr)
+ORDER BY student ASC;
 
 SELECT * FROM PathToGraduation;
 
+SELECT SUM(PassedCourses.credits) FILTER (WHERE Classified.classification = 'math') AS mathCredits
+FROM PassedCourses
+LEFT JOIN Classified
+ON PassedCourses.course = Classified.course
+GROUP BY (PassedCourses.student);
 
-        
+SELECT SUM(PassedCourses.credits) FILTER (WHERE Classified.classification = 'research') AS researchCredits
+FROM PassedCourses
+LEFT JOIN Classified
+ON PassedCourses.course = Classified.course
+GROUP BY (PassedCourses.student);
 
 -- , mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified
