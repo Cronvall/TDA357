@@ -48,10 +48,33 @@ ON BasicInformation.idnr = PassedCourses.student;
 -- TODO PathToGraduation View
 
 CREATE OR REPLACE VIEW PathToGraduation AS
+WITH MathCredits AS (
+    SELECT student, SUM(PassedCourses.credits) FILTER (WHERE Classified.classification = 'math') AS mathCredits
+    FROM PassedCourses
+    LEFT JOIN Classified
+    ON PassedCourses.course = Classified.course
+    GROUP BY (PassedCourses.student)
+), ResearchCredits AS (
+    SELECT student, SUM(PassedCourses.credits) FILTER (WHERE Classified.classification = 'research') AS researchCredits
+    FROM PassedCourses
+    LEFT JOIN Classified
+    ON PassedCourses.course = Classified.course
+    GROUP BY (PassedCourses.student)
+), seminarCourses AS (
+    SELECT student, COALESCE(COUNT(PassedCourses.credits) FILTER (WHERE Classified.classification = 'seminar'), 0) AS seminarCourses
+    FROM PassedCourses
+    LEFT JOIN Classified
+    ON PassedCourses.course = Classified.course
+    GROUP BY (PassedCourses.student)
+)
 SELECT
     idnr AS student,
     COALESCE(SUM(PassedCourses.credits), 0) AS totalCredits,
     COUNT(UnreadMandatory.course) AS mandatoryLeft,
+    COALESCE(MathCredits.mathCredits, 0) AS mathCredits,
+    COALESCE(researchCredits, 0) AS researchCredits,
+    COALESCE(seminarCourses, 0) AS seminarCourses
+
 FROM 
     BasicInformation
 LEFT JOIN 
@@ -60,30 +83,21 @@ ON BasicInformation.idnr = PassedCourses.student
 LEFT JOIN
     UnreadMandatory
 ON BasicInformation.idnr = UnreadMandatory.student
-GROUP BY (BasicInformation.idnr)
+LEFT JOIN
+    MathCredits
+ON BasicInformation.idnr = MathCredits.student
+LEFT JOIN
+    ResearchCredits
+ON BasicInformation.idnr = ResearchCredits.student
+LEFT JOIN
+    seminarCourses
+ON BasicInformation.idnr = seminarCourses.student
+
+GROUP BY (BasicInformation.idnr, MathCredits.mathCredits, researchCredits, seminarCourses)
 ORDER BY idnr ASC;
 
 SELECT * FROM PathToGraduation;
 
 
 
-SELECT SUM(PassedCourses.credits) FILTER (WHERE Classified.classification = 'math') AS mathCredits
-FROM PassedCourses
-LEFT JOIN Classified
-ON PassedCourses.course = Classified.course
-GROUP BY (PassedCourses.student);
-
-SELECT COALESCE(SUM(PassedCourses.credits), 0) AS researchCredits
-FROM PassedCourses
-LEFT JOIN Classified
-ON PassedCourses.course = Classified.course
-AND Classified.classification = 'research'
-GROUP BY (PassedCourses.student);
-
-SELECT COUNT(PassedCourses.credits) FILTER (WHERE Classified.classification = 'research') AS researchCredits
-FROM PassedCourses
-LEFT JOIN Classified
-ON PassedCourses.course = Classified.course
-GROUP BY (PassedCourses.student);
-
--- , mandatoryLeft, mathCredits, researchCredits, seminarCourses, qualified
+qualified
