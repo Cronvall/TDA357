@@ -28,10 +28,9 @@ FOREIGN KEY (code) REFERENCES Courses
 
 
 CREATE TABLE StudentBranches(
-student CHAR(10) NOT NULL PRIMARY KEY
-CHECK (student SIMILAR TO '[0-9]{10}'),
-branch TEXT,
-program TEXT,
+student CHAR(10) NOT NULL PRIMARY KEY,
+branch TEXT NOT NULL,
+program TEXT NOT NULL,
 FOREIGN KEY (student) REFERENCES Students,
 FOREIGN KEY (branch, program) REFERENCES Branches);
 
@@ -82,7 +81,7 @@ PRIMARY KEY (student, course)
 CREATE TABLE Taken(
 student CHAR(10) REFERENCES Students NOT NULL,
 course CHAR(6) REFERENCES Courses NOT NULL,
-grade CHAR(1) DEFAULT 'U',
+grade CHAR(1) NOT NULL DEFAULT 'U',
 CONSTRAINT validGrade CHECK (grade IN ('U', '3', '4', '5')),
 PRIMARY KEY (student, course)
 );
@@ -91,6 +90,6 @@ PRIMARY KEY (student, course)
 CREATE TABLE WaitingList(
 student CHAR(10) REFERENCES Students NOT NULL,
 course CHAR(6) REFERENCES LimitedCourses NOT NULL,
-position DATE DEFAULT CURRENT_DATE,
+position SERIAL NOT NULL,
 PRIMARY KEY (student, course)
 );

@@ -61,7 +61,7 @@ WITH MathCredits AS (
     ON PassedCourses.course = Classified.course
     GROUP BY (PassedCourses.student)
 ), seminarCourses AS (
-    SELECT student, COALESCE(COUNT(PassedCourses.credits) FILTER (WHERE Classified.classification = 'seminar'), 0) AS seminarCourses
+    SELECT student, COUNT(PassedCourses.credits) FILTER (WHERE Classified.classification = 'seminar') AS seminarCourses
     FROM PassedCourses
     LEFT JOIN Classified
     ON PassedCourses.course = Classified.course
@@ -73,7 +73,14 @@ SELECT
     COUNT(UnreadMandatory.course) AS mandatoryLeft,
     COALESCE(MathCredits.mathCredits, 0) AS mathCredits,
     COALESCE(researchCredits, 0) AS researchCredits,
-    COALESCE(seminarCourses, 0) AS seminarCourses
+    COALESCE(seminarCourses, 0) AS seminarCourses,
+    CASE 
+        WHEN mathCredits >= 20
+        AND researchCredits >= 10
+        AND seminarCourses >= 1
+    THEN TRUE
+    ELSE FALSE
+    END AS qualified
 
 FROM 
     BasicInformation
@@ -90,14 +97,10 @@ LEFT JOIN
     ResearchCredits
 ON BasicInformation.idnr = ResearchCredits.student
 LEFT JOIN
-    seminarCourses
+    SeminarCourses
 ON BasicInformation.idnr = seminarCourses.student
 
 GROUP BY (BasicInformation.idnr, MathCredits.mathCredits, researchCredits, seminarCourses)
 ORDER BY idnr ASC;
 
 SELECT * FROM PathToGraduation;
-
-
-
-qualified
