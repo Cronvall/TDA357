@@ -60,12 +60,21 @@ WITH MathCredits AS (
     LEFT JOIN Classified
     ON PassedCourses.course = Classified.course
     GROUP BY (PassedCourses.student)
-), seminarCourses AS (
+), SeminarCourses AS (
     SELECT student, COUNT(PassedCourses.credits) FILTER (WHERE Classified.classification = 'seminar') AS seminarCourses
     FROM PassedCourses
     LEFT JOIN Classified
     ON PassedCourses.course = Classified.course
     GROUP BY (PassedCourses.student)
+), RecommendedCredits AS (
+    SELECT student, PassedCourses.credits AS credits
+    FROM BasicInformation
+    JOIN RecommendedBranch
+    ON BasicInformation.branch = RecommendedBranch.branch
+    AND BasicInformation.program = RecommendedBranch.program
+    JOIN PassedCourses
+    ON BasicInformation.idnr = PassedCourses.student
+    AND RecommendedBranch.course = PassedCourses.course
 )
 SELECT
     idnr AS student,
@@ -74,10 +83,12 @@ SELECT
     COALESCE(MathCredits.mathCredits, 0) AS mathCredits,
     COALESCE(researchCredits, 0) AS researchCredits,
     COALESCE(seminarCourses, 0) AS seminarCourses,
-    CASE 
-        WHEN mathCredits >= 20
+    CASE
+        WHEN COUNT(UnreadMandatory.course) = 0
+        AND mathCredits >= 20
         AND researchCredits >= 10
         AND seminarCourses >= 1
+        AND RecommendedCredits.credits >= 10
     THEN TRUE
     ELSE FALSE
     END AS qualified
@@ -99,8 +110,11 @@ ON BasicInformation.idnr = ResearchCredits.student
 LEFT JOIN
     SeminarCourses
 ON BasicInformation.idnr = seminarCourses.student
+LEFT JOIN
+    RecommendedCredits
+ON BasicInformation.idnr = RecommendedCredits.student
 
-GROUP BY (BasicInformation.idnr, MathCredits.mathCredits, researchCredits, seminarCourses)
+GROUP BY (BasicInformation.idnr, MathCredits.mathCredits, researchCredits, seminarCourses, RecommendedCredits.credits)
 ORDER BY idnr ASC;
 
 SELECT * FROM PathToGraduation;
