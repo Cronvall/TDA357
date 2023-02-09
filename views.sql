@@ -79,7 +79,7 @@ WITH MathCredits AS (
 SELECT
     idnr AS student,
     COALESCE(SUM(PassedCourses.credits), 0) AS totalCredits,
-    COUNT(UnreadMandatory.course) AS mandatoryLeft,
+    COUNT(DISTINCT UnreadMandatory.course) AS mandatoryLeft,
     COALESCE(MathCredits.mathCredits, 0) AS mathCredits,
     COALESCE(researchCredits, 0) AS researchCredits,
     COALESCE(seminarCourses, 0) AS seminarCourses,
