@@ -1,95 +1,101 @@
-CREATE TABLE Students (
-idnr CHAR(10) NOT NULL
-CHECK (idnr SIMILAR TO '[0-9]{10}'),
-name TEXT NOT NULL,
-login TEXT NOT NULL,
-program TEXT NOT NULL,
-PRIMARY KEY (idnr)
+CREATE TABLE Departments AS (
+    name TEXT NOT NULL,
+    abbreviation char(2) NOT NULL,
+CONSTRAINT PK_Department PRIMARY KEY (name, abbreviation)
+);
+
+CREATE TABLE Programs AS (
+    name TEXT NOT NULL,
+    abbreviation char(4) NOT NULL,
+    department_ab TEXT NOT NULL REFERENCES Departments(abbreviation)
+CONSTRAINT PK_Program PRIMARY KEY name
+);
+
+CREATE TABLE Course (
+    code char(6) NOT NULL PRIMARY KEY,
+    credits NUMERIC NOT NULL,
+    department TEXT NOT NULL,
+    CONSTRAINT FK_Course_Department
+        FOREIGN KEY (department, abbreviation)
+        REFERENCES Departments(name, abbreviation)
 );
 
 CREATE TABLE Branches (
-name TEXT NOT NULL,
-program TEXT NOT NULL,
-PRIMARY KEY (name, program)
+    programName TEXT NOT NULL,
+    name TEXT NOT NULL,
+CONSTRAINT PK_Branch PRIMARY KEY (programName, name)
 );
 
-CREATE TABLE Courses (
-code CHAR(6) NOT NULL PRIMARY KEY,
-name TEXT NOT NULL,
-credits NUMERIC NOT NULL,
-department TEXT NOT NULL
+CREATE TABLE Students (
+    idnr char(10) NOT NULL
+    CHECK (idnr SIMILAR TO '[0-9]{10}'),
+    name TEXT NOT NULL,
+    login TEXT NOT NULL,
+    program TEXT NOT NULL REFERENCES Programs(name),
+    branch TEXT NOT NULL REFERENCES Branches(name),
+PRIMARY KEY (idnr)
+);
+
+CREATE TABLE MandatoryCourses (
+    course char(6) NOT NULL,
+    branch TEXT,
+    program TEXT NOT NULL,
+    CONSTRAINT FK_MandatoryCourse_Branches
+        FOREIGN KEY (program, branch)
+        REFERENCES Branches(programName, name),
+    CONSTRAINT PK_MandatoryCourse PRIMARY KEY (course, branch, program)
+);
+
+CREATE TABLE RecommendedCourses (
+    course char(6) NOT NULL REFERENCES Courses(code),
+    branch TEXT NOT NULL REFERENCES Branches(name),
+    program TEXT NOT NULL REFERENCES Programs(name),
+    CONSTRAINT PK_RecommendedCourses PRIMARY KEY (branch, program)
 );
 
 CREATE TABLE LimitedCourses (
-code CHAR(6) NOT NULL PRIMARY KEY,
-capacity INT NOT NULL,
-FOREIGN KEY (code) REFERENCES Courses
+    course char(6) NOT NULL,
+    capacity integer NOT NULL
+    CHECK (capacity > 0),
+    CONSTRAINT FK_LimitedCourse
+        FOREIGN KEY course
+        REFERENCES Courses(course),
+    CONSTRAINT PK_LimitedCourse PRIMARY KEY course
 );
 
+CREATE TABLE FinishedCourses (
+    course char(6) NOT NULL REFERENCES Courses(code),
+    student char(10) NOT NULL REFERENCES Students(idnr),
+    grade, char(1) NOT NULL
+    CHECK (grade IN ('U', '3', '4', '5')),
+    CONSTRAINT PK_FinishedCourse PRIMARY KEY (course, student)
+);
 
-CREATE TABLE StudentBranches(
-student CHAR(10) NOT NULL PRIMARY KEY,
-branch TEXT NOT NULL,
-program TEXT NOT NULL,
-FOREIGN KEY (student) REFERENCES Students,
-FOREIGN KEY (branch, program) REFERENCES Branches);
+CREATE TABLE Registered (
+    course char(6) NOT NULL REFERENCES Courses(code),
+    student char(10) NOT NULL REFERENCES Students(idnr)
+    CONSTRAINT PK_Registered PRIMARY KEY (course, student)
+);
 
+CREATE TABLE WaitingList (
+    course char(6) NOT NULL REFERENCES Courses(code),
+    student char(10) NOT NULL REFERENCES Students(idnr),
+    position SERIAL NOT NULL,
+    CONSTRAINT PK_WaitingList PRIMARY KEY (course, student)
+);
+
+CREATE TABLE DepartmentPrograms (
+    departmentName TEXT NOT NULL REFERENCES Department(name),
+    programName TEXT NOT NULL REFERENCES Programs(name),
+    CONSTRAINT PK_DepartmentPrograms PRIMARY KEY (departmentName, programName)
+);
 
 CREATE TABLE Classifications(
-name TEXT NOT NULL PRIMARY KEY
+classification TEXT NOT NULL PRIMARY KEY
 );
 
-
-CREATE TABLE Classified(
-course CHAR(6) REFERENCES Courses,
-classification TEXT REFERENCES Classifications,
-PRIMARY KEY (course, classification)
-);
-
-CREATE TABLE MandatoryProgram(
-course CHAR(6) REFERENCES Courses(code),
-program TEXT NOT NULL,
-PRIMARY KEY (course, program)
-);
-
-
-CREATE TABLE MandatoryBranch(
-course CHAR(6) REFERENCES Courses,
-branch TEXT NOT NULL,
-program TEXT NOT NULL,
-FOREIGN KEY (branch, program) REFERENCES Branches,
-PRIMARY KEY (course, branch, program)
-);
-
-
-CREATE TABLE RecommendedBranch(
-course CHAR(6) REFERENCES Courses,
-branch TEXT NOT NULL,
-program TEXT NOT NULL,
-FOREIGN KEY (branch, program) REFERENCES Branches,
-PRIMARY KEY(course, branch, program)
-);
-
-
-CREATE TABLE Registered(
-student CHAR(10) REFERENCES Students NOT NULL,
-course CHAR(6) REFERENCES Courses NOT NULL,
-PRIMARY KEY (student, course)
-);
-
-
-CREATE TABLE Taken(
-student CHAR(10) REFERENCES Students NOT NULL,
-course CHAR(6) REFERENCES Courses NOT NULL,
-grade CHAR(1) NOT NULL DEFAULT 'U',
-CONSTRAINT validGrade CHECK (grade IN ('U', '3', '4', '5')),
-PRIMARY KEY (student, course)
-);
-
-
-CREATE TABLE WaitingList(
-student CHAR(10) REFERENCES Students NOT NULL,
-course CHAR(6) REFERENCES LimitedCourses NOT NULL,
-position SERIAL NOT NULL,
-PRIMARY KEY (student, course)
+CREATE TABLE Classified (
+    course char(6) NOT NULL REFERENCES Courses(code),
+    classification TEXT NOT NULL REFERENCES Classified(classification),
+    CONSTRAINT PK_Classifications PRIMARY KEY (course, classification)
 );

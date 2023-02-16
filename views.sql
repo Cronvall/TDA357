@@ -1,15 +1,12 @@
 CREATE VIEW BasicInformation AS
-SELECT idnr, name, login, Students.program AS program, branch
-FROM Students 
-LEFT JOIN StudentBranches
-ON Students.idnr = StudentBranches.student;
+SELECT idnr, name, login, program, branch
+FROM Students; 
 
-
-CREATE VIEW FinishedCourses AS
+CREATE VIEW FinishedCoursesView AS
 SELECT student, course, grade, credits
-FROM Students, Taken, Courses
-WHERE Students.idnr = Taken.student
-AND Taken.course = Courses.code;
+FROM FinishedCourses
+LEFT JOIN Courses
+ON FinishedCourses.course = Courses.code;
 
 
 CREATE VIEW PassedCourses AS
@@ -31,14 +28,8 @@ WHERE Students.idnr = Waitinglist.student;
 CREATE VIEW UnreadMandatory AS
 SELECT idnr AS student, course
 FROM BasicInformation
-JOIN MandatoryProgram
+JOIN MandatoryCourse
 ON BasicInformation.program = MandatoryProgram.program
-UNION
-SELECT idnr AS student, course
-FROM BasicInformation
-JOIN MandatoryBranch
-ON BasicInformation.program = MandatoryBranch.program
-AND BasicInformation.branch = MandatoryBranch.branch
 EXCEPT
 SELECT student, course
 FROM BasicInformation
@@ -51,30 +42,24 @@ CREATE OR REPLACE VIEW PathToGraduation AS
 WITH MathCredits AS (
     SELECT student, SUM(PassedCourses.credits) FILTER (WHERE Classified.classification = 'math') AS mathCredits
     FROM PassedCourses
-    LEFT JOIN Classified
-    ON PassedCourses.course = Classified.course
     GROUP BY (PassedCourses.student)
 ), ResearchCredits AS (
     SELECT student, SUM(PassedCourses.credits) FILTER (WHERE Classified.classification = 'research') AS researchCredits
     FROM PassedCourses
-    LEFT JOIN Classified
-    ON PassedCourses.course = Classified.course
     GROUP BY (PassedCourses.student)
 ), SeminarCourses AS (
     SELECT student, COUNT(PassedCourses.credits) FILTER (WHERE Classified.classification = 'seminar') AS seminarCourses
     FROM PassedCourses
-    LEFT JOIN Classified
-    ON PassedCourses.course = Classified.course
     GROUP BY (PassedCourses.student)
 ), RecommendedCredits AS (
     SELECT student, PassedCourses.credits AS credits
     FROM BasicInformation
-    JOIN RecommendedBranch
-    ON BasicInformation.branch = RecommendedBranch.branch
-    AND BasicInformation.program = RecommendedBranch.program
+    JOIN RecommendedCourses
+    ON BasicInformation.branch = RecommendedCourses.branch
+    AND BasicInformation.program = RecommendedCourses.program
     JOIN PassedCourses
     ON BasicInformation.idnr = PassedCourses.student
-    AND RecommendedBranch.course = PassedCourses.course
+    AND RecommendedCourses.course = PassedCourses.course
 )
 SELECT
     idnr AS student,

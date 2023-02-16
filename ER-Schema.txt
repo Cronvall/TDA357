@@ -1,0 +1,31 @@
+Department(_name_, _abbreviation_)
+
+Program(_name_, _abbreviation_)
+
+Course(_code_, credits, department)
+
+MandatoryCourse(_course_, _branch_)
+
+LimitedCourse(_course_, capacity)
+    course -> Course.code
+
+FinishedCourse(_course_, _student_, grade)
+    course -> Course.code
+    student -> Student.idnr
+
+Student(_idnr_, program, branch)
+
+Branch(_programName_, _name_)
+    programName -> Program.name
+
+WaitingList(_course_, _student_, position)
+    course -> Course.code
+    student -> Student.idnr
+
+DepartmentPrograms(_departmentName_, _programName_)
+    departmentName -> Department.name
+    programName -> Program.name
+
+Classifications(_Course_, _Classifcation_)
+    Course -> Course.code
+    Classification -> Classified.classification.
