@@ -28,7 +28,7 @@ WHERE Students.idnr = Waitinglist.student;
 CREATE VIEW UnreadMandatory AS
 SELECT idnr AS student, course
 FROM BasicInformation
-JOIN MandatoryCourse
+JOIN MandatoryCourses
 ON BasicInformation.program = MandatoryProgram.program
 EXCEPT
 SELECT student, course
