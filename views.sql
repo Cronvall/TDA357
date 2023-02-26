@@ -117,7 +117,3 @@ ON BasicInformation.idnr = RecommendedCredits.student
 
 GROUP BY (BasicInformation.idnr, MathCredits.mathCredits, researchCredits, seminarCourses, RecommendedCredits.credits)
 ORDER BY idnr ASC;
-
-CREATE VIEW CourseQueuePositions AS
-SELECT course, student, position AS place
-FROM Waitinglist;
