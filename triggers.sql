@@ -48,7 +48,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 CREATE OR REPLACE FUNCTION unregister() RETURNS trigger AS $$
 BEGIN
 
@@ -67,24 +66,38 @@ BEGIN
         RAISE EXCEPTION 'Student not registered';
     END IF;
 
-    -- delete student from Registered
-    DELETE FROM Registered WHERE student = OLD.student AND course = OLD.course;
+    -- check if the course is a limited course
+    IF (EXISTS (SELECT * FROM LimitedCourses WHERE LimitedCourses.code = OLD.course)) THEN
+        -- check if there are students in waitinglist
+        IF (EXISTS (SELECT * FROM WaitingList WHERE course = OLD.course)) THEN
 
-    -- check if there are students in waitinglist
-    IF (EXISTS (SELECT * FROM WaitingList WHERE course = OLD.course)) THEN
-        -- get first student in waitinglist
-        SELECT student AS newStudent FROM WaitingList WHERE course = OLD.course ORDER BY id LIMIT 1;
-        -- delete student from waitinglist
-        DELETE FROM WaitingList WHERE student = newStudent AND course = OLD.course;
-        -- insert student into registered
-        INSERT INTO Registered (student, course) VALUES (newStudent, OLD.course);
-        RAISE NOTICE 'STUDENT REMOVED FROM WAITING LIST AND ADDED TO REGISTERED';
+            DECLARE nextStudent char(10);
+
+            -- get first student in waitinglist
+            SELECT student INTO nextStudent FROM WaitingList WHERE course = OLD.course AND postion = 1;
+            -- delete student from waitinglist
+            DELETE FROM WaitingList WHERE student = nextStudent AND course = OLD.course;
+            -- insert student into registered
+            INSERT INTO Registered (student, course) VALUES (nextStudent, OLD.course);
+            RAISE NOTICE 'STUDENT REMOVED FROM WAITING LIST AND ADDED TO REGISTERED';
+
+            --Update the position for remainging students in waitinglist for the course
+            UPDATE WaitingList SET position = position - 1 WHERE course = OLD.course AND position > 1;
+            RAISE NOTICE 'WAITINGLIST POSITION UPDATED';
+        END IF;
+    ELSE --Case of unlimited course
+        -- delete student from Registered
+        DELETE FROM Registered WHERE student = OLD.student AND course = OLD.course;
+        RAISE NOTICE 'STUDENT UNREGISTERED';
     END IF;
 
     RAISE NOTICE 'STUDENT UNREGISTERED';
 
+    RETURN NULL;
+
 END;
 $$ LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE TRIGGER register
     INSTEAD OF INSERT ON Registrations
