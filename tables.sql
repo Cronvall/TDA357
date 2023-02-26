@@ -113,7 +113,7 @@ CREATE TABLE Classified (
     PRIMARY KEY (course, classification)
 );
 
-CREATE TABLE Prerequisites (
+CREATE TABLE Prerequisite (
     course char(6) NOT NULL,
     prerequisite char(6) NOT NULL,
     PRIMARY KEY (course, prerequisite)

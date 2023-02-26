@@ -18,14 +18,15 @@ FROM FinishedCourses
 WHERE grade IN ('3','4','5');
 
 
-CREATE VIEW Registrations AS
+CREATE OR REPLACE VIEW Registrations AS
 SELECT student, course, 'registered' AS status 
 FROM Students, Registered
 WHERE Students.idnr = Registered.student
 UNION
 Select student, course, 'waiting' AS status
 FROM Students, Waitinglist
-WHERE Students.idnr = Waitinglist.student;
+WHERE Students.idnr = Waitinglist.student
+ORDER BY course,student ASC;
 
 
 CREATE VIEW UnreadMandatory AS
@@ -117,4 +118,6 @@ ON BasicInformation.idnr = RecommendedCredits.student
 GROUP BY (BasicInformation.idnr, MathCredits.mathCredits, researchCredits, seminarCourses, RecommendedCredits.credits)
 ORDER BY idnr ASC;
 
-SELECT * FROM PathToGraduation;
+CREATE VIEW CourseQueuePositions AS
+SELECT course, student, position AS place
+FROM Waitinglist;
