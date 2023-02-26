@@ -27,9 +27,20 @@ BEGIN
 
         -- See if course is limited
         IF (EXISTS (SELECT * FROM LimitedCourses WHERE LimitedCourses.code = NEW.course)) THEN
-            -- check if course is full
-            RAISE EXCEPTION 'COURSE IS LIMITED';
-        ELSE RAISE EXCEPTION 'COURSE IS UNLIMITED';
+            
+            -- count number of students registered for course, if full then insert new student into WaitingList
+            IF (SELECT COUNT(*) FROM Registered WHERE course = NEW.course) >= (SELECT capacity FROM LimitedCourses WHERE code = NEW.course) THEN
+                -- If new student already in waitinglist, raise exception else add to waitinglist
+                IF (EXISTS (SELECT * FROM WaitingList WHERE student = NEW.student AND course = NEW.course)) THEN
+                    RAISE EXCEPTION 'STUDENT ALREADY IN WAITING LIST';
+                ELSE
+                    INSERT INTO WaitingList (student, course) VALUES (NEW.student, NEW.course);
+                    RAISE NOTICE 'COURSE IS FULL, STUDENT ADDED TO WAITING LIST';
+                END IF;
+            ELSE
+                INSERT INTO Registered (student, course) VALUES (NEW.student, NEW.course);
+                RAISE NOTICE 'STUDENT REGISTERED';                
+            END IF;
         END IF;
 
     END;
