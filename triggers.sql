@@ -25,6 +25,8 @@ BEGIN
             RAISE EXCEPTION 'PREREQUISITE EXIST';
         END IF;
 
+
+
         -- See if course is limited
         IF (EXISTS (SELECT * FROM LimitedCourses WHERE LimitedCourses.code = NEW.course)) THEN
             
@@ -47,7 +49,50 @@ BEGIN
 $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION unregister() RETURNS trigger AS $$
+BEGIN
+
+    -- check if student exist?
+    IF NOT (EXISTS (SELECT * FROM Students WHERE idnr = OLD.student)) THEN
+        RAISE EXCEPTION 'Student does not exist';
+    END IF;
+    
+    -- check if course exist?
+    IF NOT (EXISTS (SELECT * FROM Courses WHERE code = OLD.Course)) THEN
+        RAISE EXCEPTION 'Course does not exist';
+    END IF;
+
+    -- see if student is registered
+    IF NOT (EXISTS (SELECT * FROM Registered WHERE student = OLD.student AND course = OLD.course)) THEN
+        RAISE EXCEPTION 'Student not registered';
+    END IF;
+
+    -- delete student from Registered
+    DELETE FROM Registered WHERE student = OLD.student AND course = OLD.course;
+
+    -- check if there are students in waitinglist
+    IF (EXISTS (SELECT * FROM WaitingList WHERE course = OLD.course)) THEN
+        -- get first student in waitinglist
+        SELECT student AS newStudent FROM WaitingList WHERE course = OLD.course ORDER BY id LIMIT 1;
+        -- delete student from waitinglist
+        DELETE FROM WaitingList WHERE student = newStudent AND course = OLD.course;
+        -- insert student into registered
+        INSERT INTO Registered (student, course) VALUES (newStudent, OLD.course);
+        RAISE NOTICE 'STUDENT REMOVED FROM WAITING LIST AND ADDED TO REGISTERED';
+    END IF;
+
+    RAISE NOTICE 'STUDENT UNREGISTERED';
+
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE TRIGGER register
     INSTEAD OF INSERT ON Registrations
     FOR EACH ROW
     EXECUTE FUNCTION register();
+
+
+CREATE OR REPLACE TRIGGER unregister
+    INSTEAD OF DELETE ON Registrations
+    FOR EACH ROW
+    EXECUTE FUNCTION unregister();
