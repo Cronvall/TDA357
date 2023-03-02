@@ -22,9 +22,11 @@ BEGIN
     END IF;
 
     -- see if course has prerequisites
-    IF (EXISTS (SELECT * from Prerequisite where prerequisite.course = NEW.course)) THEN
+    IF (EXISTS (SELECT * from Prerequisite where course = NEW.course)) THEN
         -- check if student fulfills prerquisites
-        RAISE EXCEPTION 'PREREQUISITE EXIST';
+        IF EXISTS (SELECT Prerequisite from Prerequisite where course = NEW.course 
+            EXCEPT SELECT course FROM PassedCourses WHERE PassedCourses.student = NEW.student) THEN
+            RAISE EXCEPTION 'Prerequisite not fulfilled';
     END IF;
 
         -- See if course is limited
