@@ -1,1 +1,8 @@
 server/
+
+*.txt
+*.pdf
+*.png
+*.dia*
+*.txt
+*.pdf
