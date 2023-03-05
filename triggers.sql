@@ -26,7 +26,7 @@ BEGIN
             IF (EXISTS (SELECT * FROM WaitingList WHERE student = NEW.student AND course = NEW.course)) THEN
                 RAISE EXCEPTION 'STUDENT ALREADY IN WAITING LIST';
             ELSE
-                INSERT INTO WaitingList (student, course, position) VALUES (NEW.student, NEW.course, (SELECT COUNT(position)+1 FROM WaitingList WHERE course = NEW.course));
+                INSERT INTO WaitingList (student, course, position) VALUES (NEW.student, NEW.course, (SELECT COUNT(place)+1 FROM CourseQueuePositions WHERE course = NEW.course));
                 RAISE NOTICE 'COURSE IS FULL, STUDENT ADDED TO WAITING LIST';
                 RETURN NULL;
             END IF;             
@@ -40,6 +40,7 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION unregister() RETURNS trigger AS $$
 
@@ -80,40 +81,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- CREATE OR REPLACE FUNCTION updateWaitingList() RETURNS trigger AS $$
-
--- DECLARE tempPosition int DEFAULT OLD.position;
-
--- BEGIN
-
---     RAISE NOTICE 'tempPosition is: %', tempPosition;
---     -- print old values
---     RAISE NOTICE 'OLD VALUES: %', OLD.position;
-
---     -- if there are more students in waitinglist update position
---     IF (EXISTS (SELECT * FROM WaitingList WHERE course = OLD.course AND position > tempPosition)) THEN
---         -- update position of students in waitinglist
---         UPDATE WaitingList SET position = position - 1 WHERE course = OLD.course AND position > tempPosition;
---         RAISE NOTICE 'POSITIONS UPDATED IN WAITING LIST';
---     END IF;
-
---     RETURN OLD;
-
--- END;
--- $$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE TRIGGER register
     INSTEAD OF INSERT ON Registrations
     FOR EACH ROW
     EXECUTE FUNCTION register();
 
-
 CREATE OR REPLACE TRIGGER unregister
     INSTEAD OF DELETE ON Registrations
     FOR EACH ROW
     EXECUTE FUNCTION unregister();
-
--- CREATE OR REPLACE TRIGGER unregisterWaitList
---     AFTER DELETE ON WaitingList
---     FOR EACH ROW
---     EXECUTE FUNCTION updateWaitingList();
