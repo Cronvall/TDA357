@@ -77,10 +77,8 @@ public class PortalConnection {
     public String getInfo(String student) throws SQLException{
         
         try(PreparedStatement st = conn.prepareStatement(
-            // replace this with something more useful
-            "SELECT jsonb_build_object('student',idnr,'name',name) AS jsondata FROM BasicInformation WHERE idnr=?"
-            );){
-            
+            "SELECT jsonb_build_object('student',idnr, 'name',name, 'program',program, 'branch',branch, 'seminarCourses',seminarCourses, 'mathCredits',mathCredits, 'researchCredits',researchCredits, 'totalCredits',totalCredits, 'canGraduate',qualified) AS jsondata FROM BasicInformation JOIN PathToGraduation ON BasicInformation.idnr = PathToGraduation.student WHERE idnr=?");)
+        {
             st.setString(1, student);
             
             ResultSet rs = st.executeQuery();
