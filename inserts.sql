@@ -24,6 +24,11 @@ INSERT INTO Courses VALUES ('CCC555','C5',50,'Dep1');
 INSERT INTO LimitedCourses VALUES ('CCC222',1);
 INSERT INTO LimitedCourses VALUES ('CCC333',2);
 
+INSERT INTO LimitedCourses VALUES ('CCC111',5);
+
+INSERT INTO Prerequisite VALUES ('CCC333', 'CCC222');
+INSERT INTO Prerequisite VALUES ('CCC444','CCC333');
+
 INSERT INTO Classifications VALUES ('math');
 INSERT INTO Classifications VALUES ('research');
 INSERT INTO Classifications VALUES ('seminar');
