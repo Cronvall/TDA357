@@ -54,7 +54,7 @@ public class PortalConnection {
         // Here's a bit of useful code, use it or delete it
       // } catch (SQLException e) {
       //    return "{\"success\":false, \"error\":\""+getError(e)+"\"}";
-      // }     
+      // }
     }
 
     // Unregister a student from a course, returns a tiny JSON document (as a String)
@@ -77,7 +77,7 @@ public class PortalConnection {
     public String getInfo(String student) throws SQLException{
         
         try(PreparedStatement st = conn.prepareStatement(
-            "SELECT jsonb_build_object('student',idnr, 'name',name, 'program',program, 'branch',branch, 'finished',json_agg(jsonb_build_object()), 'seminarCourses',seminarCourses, 'mathCredits',mathCredits, 'researchCredits',researchCredits, 'totalCredits',totalCredits, 'canGraduate',qualified) AS jsondata FROM BasicInformation JOIN PathToGraduation ON BasicInformation.idnr = PathToGraduation.student WHERE idnr=? GROUP BY(Basicinformation.idnr, Basicinformation.name, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified)");)
+            "SELECT jsonb_build_object('student',idnr, 'name',name, 'login',login, 'program',program, 'branch',branch, 'finished',json_agg(jsonb_build_object()), 'seminarCourses',seminarCourses, 'mathCredits',mathCredits, 'researchCredits',researchCredits, 'totalCredits',totalCredits, 'canGraduate',qualified) AS jsondata FROM BasicInformation JOIN PathToGraduation ON BasicInformation.idnr = PathToGraduation.student WHERE idnr=? GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified)");)
         {
             st.setString(1, student);
             
