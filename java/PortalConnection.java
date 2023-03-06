@@ -80,60 +80,62 @@ public class PortalConnection {
     public String getInfo(String student) throws SQLException{
         
         try(PreparedStatement st = conn.prepareStatement(
-            "SELECT jsonb_build_object(\n" +
-                    "'student',idnr,\n" +
-                    "'name', name,\n" +
-                    "'login', login,\n" +
-                    "'program', program, \n" +
-                    "'branch', branch,\n" +
-                    "'finished', (\n" +
-                    "    SELECT json_agg(jsonb_build_object(\n" +
-                    "        'course', Courses.name,\n" +
-                    "        'code',FinishedCourses.course,\n" +
-                    "        'credits',FinishedCourses.credits, \n" +
-                    "        'grade',FinishedCourses.grade))\n" +
-                    "    FROM\n" +
-                    "        FinishedCourses\n" +
-                    "    JOIN \n" +
-                    "        Courses\n" +
-                    "    ON \n" +
-                    "        Courses.code = FinishedCourses.course\n" +
-                    "    WHERE \n" +
-                    "        FinishedCourses.student = idnr),\n" +
-                    "'registered', (\n" +
-                    "    SELECT json_agg(jsonb_build_object(\n" +
-                    "        'course', Courses.name,\n" +
-                    "        'code',Registrations.course, \n" +
-                    "        'status',Registrations.status,\n" +
-                    "        'position', WaitingList.position))\n" +
-                    "    FROM\n" +
-                    "        Registrations\n" +
-                    "    JOIN \n" +
-                    "        Courses\n" +
-                    "    ON\n" +
-                    "        Courses.code = Registrations.course\n" +
-                    "    JOIN\n" +
-                    "        WaitingList\n" +
-                    "    ON\n" +
-                    "        Waitinglist.student = Registrations.student\n" +
-                    "        AND\n" +
-                    "        Waitinglist.course = Registrations.course\n" +
-                    "    WHERE \n" +
-                    "        Registrations.student = idnr),\n" +
-                    "'seminarCourses',seminarCourses,\n" +
-                    "'mathCredits',mathCredits, \n" +
-                    "'researchCredits',researchCredits, \n" +
-                    "'totalCredits',totalCredits, \n" +
-                    "'canGraduate',qualified) AS jsondata\n" +
-                    "FROM \n" +
-                    "    BasicInformation \n" +
-                    "JOIN \n" +
-                    "    PathToGraduation \n" +
-                    "ON \n" +
-                    "    BasicInformation.idnr = PathToGraduation.student\n" +
-                    "WHERE \n" +
-                    "    idnr=?\n" +
-                    "GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified);;"))
+                        """
+                        SELECT jsonb_build_object(
+                        'student',idnr,
+                        'name', name,
+                        'login', login,
+                        'program', program,
+                        'branch', branch,
+                        'finished', (
+                            SELECT json_agg(jsonb_build_object(
+                                'course', Courses.name,
+                                'code',FinishedCourses.course,
+                                'credits',FinishedCourses.credits,
+                                'grade',FinishedCourses.grade))
+                            FROM
+                                FinishedCourses
+                            JOIN
+                                Courses
+                            ON
+                                Courses.code = FinishedCourses.course
+                            WHERE
+                                FinishedCourses.student = idnr),
+                        'registered', (
+                            SELECT json_agg(jsonb_build_object(
+                                'course', Courses.name,
+                                'code', Registrations.course,
+                                'status', Registrations.status,
+                                'position',Waitinglist.position
+                                ))
+                            FROM
+                                Registrations
+                            JOIN
+                                Courses
+                            ON
+                                Courses.code = Registrations.course
+                            LEFT JOIN
+                                WaitingList
+                            ON
+                                Waitinglist.student = Registrations.student
+                                AND
+                                Waitinglist.course = Registrations.course
+                            WHERE
+                                Registrations.student = idnr),
+                        'seminarCourses',seminarCourses,
+                        'mathCredits',mathCredits,
+                        'researchCredits',researchCredits,
+                        'totalCredits',totalCredits,
+                        'canGraduate',qualified) AS jsondata
+                        FROM
+                            BasicInformation
+                        JOIN
+                            PathToGraduation
+                        ON
+                            BasicInformation.idnr = PathToGraduation.student
+                        WHERE
+                            idnr=?
+                        GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified)"""))
         {
             st.setString(1, student);
             
