@@ -66,14 +66,19 @@ BEGIN
 
         -- if there is a student in the waiting list, move to registered
         IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID)) THEN
-        -- get tempStudent from waitinglist
-        SELECT student INTO tempStudent FROM WaitingList WHERE course = courseID AND position = 1;
-        -- delete student from waitinglist
-        DELETE FROM WaitingList WHERE student = tempStudent AND course = courseID;
-        -- insert student into registered
-        INSERT INTO Registered (student, course) VALUES (tempStudent, courseID);
+            -- Check if there is place to add a new student from WaitingList
+            IF((SELECT COUNT(*) FROM Registered WHERE course = courseID) < (SELECT capacity FROM LimitedCourses where code = courseID)) THEN
+                -- get tempStudent from waitinglist
+                SELECT student INTO tempStudent FROM WaitingList WHERE course = courseID AND position = 1;
+                -- delete student from waitinglist
+                DELETE FROM WaitingList WHERE student = tempStudent AND course = courseID;
+                -- insert student into registered
+                INSERT INTO Registered (student, course) VALUES (tempStudent, courseID);
+            ELSE
+                RETURN COALESCE(NEW, OLD);
+                -- RAISE EXCEPTION 'Course overfilled, cannot add student from waitinglist';
+            END IF;
         END IF;
-
         -- ELSE Check if student is on waitinglist
     ELSIF (EXISTS (SELECT * FROM WaitingList WHERE student = studentID AND course = courseID)) THEN
         DELETE FROM WaitingList WHERE student = studentID AND course = courseID;

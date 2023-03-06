@@ -50,3 +50,7 @@ INSERT INTO Registrations VALUES ('1111111111', 'CCC444');
 --TEST #10: Register a student to a course who fulfills prerequisites.
 -- EXPECTED OUTCOME: Pass
 INSERT INTO Registrations VALUES ('6666666666', 'CCC444');
+
+-- TEST #9: Unregister from an limited course where the student is in on the waitinglist. 
+-- EXPECTED OUTCOME: Pass
+DELETE FROM Registrations WHERE student = '5555555555' AND course = 'CCC222';
