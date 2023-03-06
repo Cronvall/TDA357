@@ -31,19 +31,26 @@ SELECT jsonb_build_object(
 'branch', branch,
 'finished', (
     SELECT json_agg(jsonb_build_object(
+        'course', Courses.name,
         'code',FinishedCourses.course,
         'credits',FinishedCourses.credits, 
         'grade',FinishedCourses.grade))
     FROM
         FinishedCourses
-    WHERE FinishedCourses.student = idnr),
+    JOIN 
+        Courses
+    ON 
+        Courses.code = FinishedCourses.course
+    WHERE 
+        FinishedCourses.student = idnr),
 'registered' , (
     SELECT json_agg(jsonb_build_object(
         'code',Registrations.course, 
         'status',Registrations.status))
     FROM
         Registrations
-    WHERE Registrations.student = idnr),
+    WHERE 
+        Registrations.student = idnr),
 'seminarCourses',seminarCourses,
 'mathCredits',mathCredits, 
 'researchCredits',researchCredits, 
@@ -53,7 +60,8 @@ FROM
     BasicInformation 
 JOIN 
     PathToGraduation 
-ON BasicInformation.idnr = PathToGraduation.student
+ON 
+    BasicInformation.idnr = PathToGraduation.student
 WHERE 
-    idnr=? 
+    idnr='4444444444'
 GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified);

@@ -88,11 +88,14 @@ public class PortalConnection {
                     "'branch', branch,\n" +
                     "'finished', (\n" +
                     "    SELECT json_agg(jsonb_build_object(\n" +
+                    "        'course', Courses.name,\n" +
                     "        'code',FinishedCourses.course,\n" +
                     "        'credits',FinishedCourses.credits, \n" +
                     "        'grade',FinishedCourses.grade))\n" +
                     "    FROM\n" +
                     "        FinishedCourses\n" +
+                    "    JOIN Courses\n" +
+                    "    ON Courses.code = FinishedCourses.course\n" +
                     "    WHERE FinishedCourses.student = idnr),\n" +
                     "'registered' , (\n" +
                     "    SELECT json_agg(jsonb_build_object(\n" +
@@ -112,7 +115,7 @@ public class PortalConnection {
                     "    PathToGraduation \n" +
                     "ON BasicInformation.idnr = PathToGraduation.student\n" +
                     "WHERE \n" +
-                    "    idnr=? \n" +
+                    "    idnr=?\n" +
                     "GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified);"))
         {
             st.setString(1, student);
