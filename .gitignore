@@ -1,4 +1,5 @@
 server/
+out/
 
 *.txt
 *.pdf
