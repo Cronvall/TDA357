@@ -16,7 +16,7 @@ INSERT INTO Registrations VALUES ('2222222222', 'CCC111');
 INSERT INTO Registrations VALUES ('4444444444', 'CCC555'); 
 
 --TEST #3: Register for a limited course that is full.
--- EXPECTED OUTCOME: Fail
+-- EXPECTED OUTCOME: Pass
 INSERT INTO Registrations VALUES ('6666666666', 'CCC333'); 
 
 --TEST #4: Register an already registered student.
@@ -49,7 +49,7 @@ INSERT INTO Registrations VALUES ('1111111111', 'CCC444');
 
 --TEST #11: Register a student to a course who fulfills prerequisites.
 -- EXPECTED OUTCOME: Pass
-INSERT INTO Registrations VALUES ('6666666666', 'CCC444');
+INSERT INTO Registrations VALUES ('7777777777', 'CCC444');
 
 -- TEST #12: Unregister from an limited course which was overfilled. 
 -- EXPECTED OUTCOME: Pass

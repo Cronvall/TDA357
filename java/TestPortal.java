@@ -12,18 +12,80 @@ public class TestPortal {
          // Write your tests here. Add/remove calls to pause() as desired. 
          // Use println instead of prettyPrint to get more compact output (if your raw JSON is already readable)
 
-         System.out.println(c.unregister("2222222222", "CCC111"));
+        // Same tests as for database
+
+        // #1 PASS
+         System.out.println(c.register("2222222222", "CCC111"));
          pause();
 
          prettyPrint(c.getInfo("2222222222")); 
          pause();
 
-         System.out.println(c.register("2222222222", "CCC333")); 
+         // #2 PASS
+         System.out.println(c.register("4444444444", "CCC555"));
          pause();
 
-         prettyPrint(c.getInfo("2222222222"));
+         prettyPrint(c.getInfo("4444444444"));
 
+        // #3 PASS
+        System.out.println(c.register("6666666666", "CCC333"));
+        pause();
 
+        prettyPrint(c.getInfo("6666666666"));
+
+        // #4 FAIL
+        System.out.println(c.register("2222222222", "CCC222"));
+        pause();
+
+        prettyPrint(c.getInfo("2222222222"));
+
+        // #5 FAIL
+        System.out.println(c.register("4444444444", "CCC111"));
+        pause();
+
+        prettyPrint(c.getInfo("4444444444"));
+
+        // #6 PASS
+        System.out.println(c.unregister("6666666666", "CCC555"));
+        pause();
+
+        prettyPrint(c.getInfo("6666666666"));
+
+        // #7 PASS
+        System.out.println(c.unregister("1111111111", "CCC111"));
+        pause();
+
+        prettyPrint(c.getInfo("1111111111"));
+
+        // #8 PASS
+        System.out.println(c.unregister("3333333333", "CCC333"));
+        pause();
+
+        prettyPrint(c.getInfo("3333333333"));
+
+        // #9 PASS
+        System.out.println(c.unregister("6666666666", "CCC333"));
+        pause();
+
+        prettyPrint(c.getInfo("6666666666"));
+
+        // #10 FAIL
+        System.out.println(c.register("1111111111", "CCC444"));
+        pause();
+
+        prettyPrint(c.getInfo("1111111111"));
+
+        // #11 PASS
+        System.out.println(c.register("7777777777", "CCC444"));
+        pause();
+
+        prettyPrint(c.getInfo("7777777777"));
+
+        // #12 PASS
+        System.out.println(c.unregister("5555555555", "CCC222"));
+        pause();
+
+        prettyPrint(c.getInfo("5555555555"));
 
       
       } catch (ClassNotFoundException e) {
