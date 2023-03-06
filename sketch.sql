@@ -43,12 +43,24 @@ SELECT jsonb_build_object(
         Courses.code = FinishedCourses.course
     WHERE 
         FinishedCourses.student = idnr),
-'registered' , (
+'registered', (
     SELECT json_agg(jsonb_build_object(
+        'course', Courses.name,
         'code',Registrations.course, 
-        'status',Registrations.status))
+        'status',Registrations.status,
+        'position', WaitingList.position))
     FROM
         Registrations
+    JOIN 
+        Courses
+    ON
+        Courses.code = Registrations.course
+    JOIN
+        WaitingList
+    ON
+        Waitinglist.student = Registrations.student
+        AND
+        Waitinglist.course = Registrations.course
     WHERE 
         Registrations.student = idnr),
 'seminarCourses',seminarCourses,

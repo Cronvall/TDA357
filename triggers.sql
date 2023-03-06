@@ -54,43 +54,40 @@ CREATE OR REPLACE FUNCTION unregister() RETURNS trigger AS $$
 
 DECLARE studentID char(10) DEFAULT OLD.student;
 DECLARE courseID char(6) DEFAULT OLD.course;
+DECLARE oldPosition int;
 
 DECLARE tempStudent char(10);
 
 BEGIN
 
-        -- check if student is registered to course
+    -- check if student is registered to course
     IF (EXISTS (SELECT * FROM Registered WHERE student = studentID AND course = courseID)) THEN
         -- delete student from registered
         DELETE FROM Registered WHERE student = studentID AND course = courseID;
-
-        -- if there is a student in the waiting list, move to registered
-        IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID)) THEN
-            -- Check if there is place to add a new student from WaitingList
-            IF((SELECT COUNT(*) FROM Registered WHERE course = courseID) < (SELECT capacity FROM LimitedCourses where code = courseID)) THEN
-                -- get tempStudent from waitinglist
-                SELECT student INTO tempStudent FROM WaitingList WHERE course = courseID AND position = 1;
-                -- delete student from waitinglist
+        IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID AND position = 1)) THEN
+            -- Check if there is free space in course
+            IF ((SELECT COUNT(*) FROM Registered WHERE course = courseID) < (SELECT capacity FROM LimitedCourses where code = courseID)) THEN
+                SELECT student, position INTO tempStudent, oldPosition FROM WaitingList WHERE course = courseID AND position = 1;
+                -- remove from waitinglist
                 DELETE FROM WaitingList WHERE student = tempStudent AND course = courseID;
-                -- insert student into registered
+                -- add to registered
                 INSERT INTO Registered (student, course) VALUES (tempStudent, courseID);
-            ELSE
-                RETURN COALESCE(NEW, OLD);
-                -- RAISE EXCEPTION 'Course overfilled, cannot add student from waitinglist';
             END IF;
         END IF;
-        -- ELSE Check if student is on waitinglist
-    ELSIF (EXISTS (SELECT * FROM WaitingList WHERE student = studentID AND course = courseID)) THEN
+    ELSIF (EXISTS (SELECT FROM WaitingList WHERE student = studentID AND course = courseID)) THEN
+        -- save position of student in waitinglist
+        SELECT position INTO oldPosition FROM WaitingList WHERE course = courseID AND student = studentID;
         DELETE FROM WaitingList WHERE student = studentID AND course = courseID;
     ELSE
         RAISE EXCEPTION 'Student is not registered to the course';
     END IF;
 
     -- if there are more students in waitinglist update position
-    IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID)) THEN
+    IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID AND position > oldPosition)) THEN
         -- update position of students in waitinglist
-        UPDATE WaitingList SET position = position - 1 WHERE course = courseID;
+        UPDATE WaitingList SET position = position - 1 WHERE course = courseID AND position > oldPosition;
     END IF;
+
     RETURN COALESCE(NEW, OLD);
 
 END;

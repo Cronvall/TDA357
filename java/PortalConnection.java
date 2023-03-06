@@ -94,16 +94,32 @@ public class PortalConnection {
                     "        'grade',FinishedCourses.grade))\n" +
                     "    FROM\n" +
                     "        FinishedCourses\n" +
-                    "    JOIN Courses\n" +
-                    "    ON Courses.code = FinishedCourses.course\n" +
-                    "    WHERE FinishedCourses.student = idnr),\n" +
-                    "'registered' , (\n" +
+                    "    JOIN \n" +
+                    "        Courses\n" +
+                    "    ON \n" +
+                    "        Courses.code = FinishedCourses.course\n" +
+                    "    WHERE \n" +
+                    "        FinishedCourses.student = idnr),\n" +
+                    "'registered', (\n" +
                     "    SELECT json_agg(jsonb_build_object(\n" +
+                    "        'course', Courses.name,\n" +
                     "        'code',Registrations.course, \n" +
-                    "        'status',Registrations.status))\n" +
+                    "        'status',Registrations.status,\n" +
+                    "        'position', WaitingList.position))\n" +
                     "    FROM\n" +
                     "        Registrations\n" +
-                    "    WHERE Registrations.student = idnr),\n" +
+                    "    JOIN \n" +
+                    "        Courses\n" +
+                    "    ON\n" +
+                    "        Courses.code = Registrations.course\n" +
+                    "    JOIN\n" +
+                    "        WaitingList\n" +
+                    "    ON\n" +
+                    "        Waitinglist.student = Registrations.student\n" +
+                    "        AND\n" +
+                    "        Waitinglist.course = Registrations.course\n" +
+                    "    WHERE \n" +
+                    "        Registrations.student = idnr),\n" +
                     "'seminarCourses',seminarCourses,\n" +
                     "'mathCredits',mathCredits, \n" +
                     "'researchCredits',researchCredits, \n" +
@@ -113,10 +129,11 @@ public class PortalConnection {
                     "    BasicInformation \n" +
                     "JOIN \n" +
                     "    PathToGraduation \n" +
-                    "ON BasicInformation.idnr = PathToGraduation.student\n" +
+                    "ON \n" +
+                    "    BasicInformation.idnr = PathToGraduation.student\n" +
                     "WHERE \n" +
                     "    idnr=?\n" +
-                    "GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified);"))
+                    "GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified);;"))
         {
             st.setString(1, student);
             
