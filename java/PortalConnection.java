@@ -47,7 +47,7 @@ public class PortalConnection {
           ps.execute();
           reply = "{\"success\":true}\n";
       } catch (SQLException e) {
-        reply = "{\"success\":false, \"error\":\"ERROR\"}";
+        reply = String.format("{\"success\":false, \"error\":\"%s\"}", getError(e));
       }
 
       return reply;
@@ -67,7 +67,7 @@ public class PortalConnection {
         ps.execute();
         reply = "{\"success\":true}\n";
       } catch (SQLException e) {
-        reply = "{\"success\":false, \"error\":\"ERROR\"}";
+        reply = String.format("{\"success\":false, \"error\":\"%s\"}", getError(e));
       }
 
       return reply;
