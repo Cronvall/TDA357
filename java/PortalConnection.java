@@ -80,7 +80,40 @@ public class PortalConnection {
     public String getInfo(String student) throws SQLException{
         
         try(PreparedStatement st = conn.prepareStatement(
-            "SELECT jsonb_build_object('student',idnr, 'name',name, 'login',login, 'program',program, 'branch',branch, 'finished',json_agg(jsonb_build_object('code',FinishedCourses.course,'credits',FinishedCourses.credits , 'grade',FinishedCourses.grade)), 'registered',json_agg(jsonb_build_object('code',Registrations.course, 'status',Registrations.status)) , 'seminarCourses',seminarCourses, 'mathCredits',mathCredits, 'researchCredits',researchCredits, 'totalCredits',totalCredits, 'canGraduate',qualified) AS jsondata FROM BasicInformation JOIN PathToGraduation ON BasicInformation.idnr = PathToGraduation.student JOIN FinishedCourses on BasicInformation.idnr = FinishedCourses.student JOIN Registrations ON BasicInformation.idnr = Registrations.student WHERE idnr=? GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified)");)
+            "SELECT jsonb_build_object(\n" +
+                    "'student',idnr,\n" +
+                    "'name', name,\n" +
+                    "'login', login,\n" +
+                    "'program', program, \n" +
+                    "'branch', branch,\n" +
+                    "'finished', (\n" +
+                    "    SELECT json_agg(jsonb_build_object(\n" +
+                    "        'code',FinishedCourses.course,\n" +
+                    "        'credits',FinishedCourses.credits, \n" +
+                    "        'grade',FinishedCourses.grade))\n" +
+                    "    FROM\n" +
+                    "        FinishedCourses\n" +
+                    "    WHERE FinishedCourses.student = idnr),\n" +
+                    "'registered' , (\n" +
+                    "    SELECT json_agg(jsonb_build_object(\n" +
+                    "        'code',Registrations.course, \n" +
+                    "        'status',Registrations.status))\n" +
+                    "    FROM\n" +
+                    "        Registrations\n" +
+                    "    WHERE Registrations.student = idnr),\n" +
+                    "'seminarCourses',seminarCourses,\n" +
+                    "'mathCredits',mathCredits, \n" +
+                    "'researchCredits',researchCredits, \n" +
+                    "'totalCredits',totalCredits, \n" +
+                    "'canGraduate',qualified) AS jsondata\n" +
+                    "FROM \n" +
+                    "    BasicInformation \n" +
+                    "JOIN \n" +
+                    "    PathToGraduation \n" +
+                    "ON BasicInformation.idnr = PathToGraduation.student\n" +
+                    "WHERE \n" +
+                    "    idnr=? \n" +
+                    "GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified);"))
         {
             st.setString(1, student);
             
