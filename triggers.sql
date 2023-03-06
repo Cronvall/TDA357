@@ -37,14 +37,14 @@ BEGIN
                 RAISE EXCEPTION 'STUDENT ALREADY IN WAITING LIST';
             ELSE
                 INSERT INTO WaitingList (student, course, position) VALUES (NEW.student, NEW.course, (SELECT COUNT(place)+1 FROM CourseQueuePositions WHERE course = NEW.course));
-                RETURN NULL;
+                RETURN NEW;
             END IF;             
         END IF;
     END IF;
 
     INSERT INTO Registered (student, course) VALUES (NEW.student, NEW.course);
 
-    RETURN NULL;
+    RETURN NEW;
 
 END;
 $$ LANGUAGE plpgsql;
@@ -67,7 +67,7 @@ BEGIN
         -- if there is a student in the waiting list, move to registered
         IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID)) THEN
         -- get tempStudent from waitinglist
-        SELECT student INTO tempStudent FROM WaitingList WHERE course = courseID AND position = (SELECT MIN(position) FROM WaitingList WHERE course = courseID);
+        SELECT student INTO tempStudent FROM WaitingList WHERE course = courseID AND position = 1;
         -- delete student from waitinglist
         DELETE FROM WaitingList WHERE student = tempStudent AND course = courseID;
         -- insert student into registered
@@ -86,7 +86,7 @@ BEGIN
         -- update position of students in waitinglist
         UPDATE WaitingList SET position = position - 1 WHERE course = courseID;
     END IF;
-    RETURN NULL;
+    RETURN COALESCE(NEW, OLD);
 
 END;
 $$ LANGUAGE plpgsql;

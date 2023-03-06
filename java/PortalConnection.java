@@ -64,8 +64,11 @@ public class PortalConnection {
               "DELETE FROM Registrations WHERE student=? AND course=?");) {
         ps.setString(1, student);
         ps.setString(2, courseCode);
-        ps.execute();
-        reply = "{\"success\":true}\n";
+        int rowsUpdated = ps.executeUpdate();
+        if (rowsUpdated > 0)
+          reply = "{\"success\":true}\n";
+        else
+          reply = "{\"success\":false, \"error\":\"0 rows affected\"}";
       } catch (SQLException e) {
         reply = String.format("{\"success\":false, \"error\":\"%s\"}", getError(e));
       }
@@ -77,7 +80,7 @@ public class PortalConnection {
     public String getInfo(String student) throws SQLException{
         
         try(PreparedStatement st = conn.prepareStatement(
-            "SELECT jsonb_build_object('student',idnr, 'name',name, 'login',login, 'program',program, 'branch',branch, 'finished',json_agg(jsonb_build_object()), 'seminarCourses',seminarCourses, 'mathCredits',mathCredits, 'researchCredits',researchCredits, 'totalCredits',totalCredits, 'canGraduate',qualified) AS jsondata FROM BasicInformation JOIN PathToGraduation ON BasicInformation.idnr = PathToGraduation.student WHERE idnr=? GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified)");)
+            "SELECT jsonb_build_object('student',idnr, 'name',name, 'login',login, 'program',program, 'branch',branch, 'finished',json_agg(jsonb_build_object('code',FinishedCourses.course,'credits',FinishedCourses.credits , 'grade',FinishedCourses.grade)), 'registered',json_agg(jsonb_build_object('code',Registrations.course, 'status',Registrations.status)) , 'seminarCourses',seminarCourses, 'mathCredits',mathCredits, 'researchCredits',researchCredits, 'totalCredits',totalCredits, 'canGraduate',qualified) AS jsondata FROM BasicInformation JOIN PathToGraduation ON BasicInformation.idnr = PathToGraduation.student JOIN FinishedCourses on BasicInformation.idnr = FinishedCourses.student JOIN Registrations ON BasicInformation.idnr = Registrations.student WHERE idnr=? GROUP BY(Basicinformation.idnr, Basicinformation.name, BasicInformation.login, basicinformation.program, basicinformation.branch, pathtograduation.seminarcourses, pathtograduation.mathcredits, pathtograduation.researchcredits, pathtograduation.totalcredits, pathtograduation.qualified)");)
         {
             st.setString(1, student);
             

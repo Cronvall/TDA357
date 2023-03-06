@@ -118,20 +118,20 @@ ON BasicInformation.idnr = RecommendedCredits.student
 GROUP BY (BasicInformation.idnr, MathCredits.mathCredits, researchCredits, seminarCourses, RecommendedCredits.credits)
 ORDER BY idnr ASC;
 
-SELECT idnr, name, course, status 
-FROM BasicInformation 
-JOIN Registrations ON BasicInformation.idnr = Registrations.student
-UNION
-SELECT course, grade FROM Taken
-WHERE BasicInformation.idnr = Taken.student
-ORDER BY idnr ASC;
+-- SELECT idnr, name, course, status 
+-- FROM BasicInformation 
+-- JOIN Registrations ON BasicInformation.idnr = Registrations.student
+-- UNION
+-- SELECT course, grade FROM Taken
+-- WHERE BasicInformation.idnr = Taken.student
+-- ORDER BY idnr ASC;
 
-
-FROM BasicInformation
-JOIN PathToGraduation ON BasicInformation.idnr = PathToGraduation.student
-SELECT student, course, status, grade
-FROM Registrations
-UNION
-SELECT student, course, status, grade
-FROM Taken
-ORDER BY student, course ASC;
+-- SELECT 
+-- FROM BasicInformation
+-- JOIN PathToGraduation ON BasicInformation.idnr = PathToGraduation.student
+-- SELECT student, course, status, grade
+-- FROM Registrations
+-- UNION
+-- SELECT student, course, status, grade
+-- FROM Taken
+-- ORDER BY student, course ASC;
