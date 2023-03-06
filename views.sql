@@ -126,9 +126,12 @@ SELECT course, grade FROM Taken
 WHERE BasicInformation.idnr = Taken.student
 ORDER BY idnr ASC;
 
-SELECT student, course, status
+
+FROM BasicInformation
+JOIN PathToGraduation ON BasicInformation.idnr = PathToGraduation.student
+SELECT student, course, status, grade
 FROM Registrations
 UNION
-SELECT student, course, grade 
+SELECT student, course, status, grade
 FROM Taken
 ORDER BY student, course ASC;

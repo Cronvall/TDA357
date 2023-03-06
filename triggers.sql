@@ -8,10 +8,20 @@ CREATE OR REPLACE FUNCTION register() RETURNS trigger AS $$
 DECLARE Cnt INTEGER;
 
 BEGIN
+
+    IF (EXISTS (SELECT * FROM Registered WHERE student = NEW.student AND course = NEW.course)) THEN
+        RAISE EXCEPTION 'Student is already registered to course';
+    END IF;
+
+    -- Check if student already passed the course
+    IF (EXISTS (SELECT * FROM PassedCourses WHERE student = NEW.student AND course = NEW.course)) THEN
+        RAISE EXCEPTION 'Student has already passed the course';
+    END IF;
+
     -- see if course has prerequisites
     IF (EXISTS (SELECT * from Prerequisite where course = NEW.course)) THEN
         -- check if student fulfills prerquisites
-        IF EXISTS (SELECT Prerequisite from Prerequisite where course = NEW.course 
+        IF EXISTS (SELECT prerequisite from Prerequisite where course = NEW.course 
             EXCEPT SELECT course FROM PassedCourses WHERE PassedCourses.student = NEW.student) THEN
             RAISE EXCEPTION 'Prerequisite not fulfilled';
         END IF;
@@ -27,14 +37,12 @@ BEGIN
                 RAISE EXCEPTION 'STUDENT ALREADY IN WAITING LIST';
             ELSE
                 INSERT INTO WaitingList (student, course, position) VALUES (NEW.student, NEW.course, (SELECT COUNT(place)+1 FROM CourseQueuePositions WHERE course = NEW.course));
-                RAISE NOTICE 'COURSE IS FULL, STUDENT ADDED TO WAITING LIST';
                 RETURN NULL;
             END IF;             
         END IF;
     END IF;
 
     INSERT INTO Registered (student, course) VALUES (NEW.student, NEW.course);
-        RAISE NOTICE 'STUDENT REGISTERED';  
 
     RETURN NULL;
 
@@ -51,29 +59,32 @@ DECLARE tempStudent char(10);
 
 BEGIN
 
-    -- check if student is registered to course
+        -- check if student is registered to course
     IF (EXISTS (SELECT * FROM Registered WHERE student = studentID AND course = courseID)) THEN
         -- delete student from registered
         DELETE FROM Registered WHERE student = studentID AND course = courseID;
-        RAISE NOTICE 'STUDENT UNREGISTERED';
-        RETURN NULL;
-    END IF;
 
-    -- if there is a student in the waiting list, move to registered
-    IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID)) THEN
+        -- if there is a student in the waiting list, move to registered
+        IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID)) THEN
         -- get tempStudent from waitinglist
-        SELECT student INTO tempStudent FROM WaitingList WHERE course = courseID AND position = 1;
+        SELECT student INTO tempStudent FROM WaitingList WHERE course = courseID AND position = (SELECT MIN(position) FROM WaitingList WHERE course = courseID);
         -- delete student from waitinglist
         DELETE FROM WaitingList WHERE student = tempStudent AND course = courseID;
         -- insert student into registered
         INSERT INTO Registered (student, course) VALUES (tempStudent, courseID);
-        RAISE NOTICE 'STUDENT MOVED FROM WAITING LIST TO REGISTERED';
+        END IF;
+
+        -- ELSE Check if student is on waitinglist
+    ELSIF (EXISTS (SELECT * FROM WaitingList WHERE student = studentID AND course = courseID)) THEN
+        DELETE FROM WaitingList WHERE student = studentID AND course = courseID;
+    ELSE
+        RAISE EXCEPTION 'Student is not registered to the course';
     END IF;
+
     -- if there are more students in waitinglist update position
     IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID)) THEN
         -- update position of students in waitinglist
         UPDATE WaitingList SET position = position - 1 WHERE course = courseID;
-        RAISE NOTICE 'POSITIONS UPDATED IN WAITING LIST';
     END IF;
     RETURN NULL;
 
