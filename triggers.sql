@@ -1,9 +1,9 @@
-CREATE OR REPLACE VIEW CourseQueuePositions AS
+CREATE  VIEW CourseQueuePositions AS
 SELECT course, student, position AS place
 FROM Waitinglist;
 
 
-CREATE OR REPLACE FUNCTION register() RETURNS trigger AS $$
+CREATE FUNCTION register() RETURNS trigger AS $$
 
 DECLARE Cnt INTEGER;
 
@@ -50,7 +50,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION unregister() RETURNS trigger AS $$
+CREATE FUNCTION unregister() RETURNS trigger AS $$
 
 DECLARE studentID char(10) DEFAULT OLD.student;
 DECLARE courseID char(6) DEFAULT OLD.course;
@@ -94,12 +94,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE TRIGGER register
+CREATE TRIGGER register
     INSTEAD OF INSERT ON Registrations
     FOR EACH ROW
     EXECUTE FUNCTION register();
 
-CREATE OR REPLACE TRIGGER unregister
+CREATE TRIGGER unregister
     INSTEAD OF DELETE ON Registrations
     FOR EACH ROW
     EXECUTE FUNCTION unregister();

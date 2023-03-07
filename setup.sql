@@ -117,7 +117,7 @@ CREATE TABLE Prerequisite (
     course char(6) NOT NULL,
     prerequisite char(6) NOT NULL,
     PRIMARY KEY (course, prerequisite)
-)
+);
 
 INSERT INTO Programs VALUES ('Prog1','P1');
 INSERT INTO Programs VALUES ('Prog2','P2');
