@@ -54,41 +54,40 @@ CREATE FUNCTION unregister() RETURNS trigger AS $$
 
 DECLARE studentID char(10) DEFAULT OLD.student;
 DECLARE courseID char(6) DEFAULT OLD.course;
-DECLARE oldPosition int;
+DECLARE oldPosition int DEFAULT OLD.position;
 
 DECLARE tempStudent char(10);
 
 BEGIN
-
     -- check if student is registered to course
     IF (EXISTS (SELECT * FROM Registered WHERE student = studentID AND course = courseID)) THEN
         -- delete student from registered
         DELETE FROM Registered WHERE student = studentID AND course = courseID;
-        IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID AND position = 1)) THEN
-            -- Check if there is free space in course
-            IF ((SELECT COUNT(*) FROM Registered WHERE course = courseID) < (SELECT capacity FROM LimitedCourses where code = courseID)) THEN
-                SELECT student, position INTO tempStudent, oldPosition FROM WaitingList WHERE course = courseID AND position = 1;
+
+        -- check if there are empty spots for the course
+        IF ((SELECT COUNT(*) FROM Registered WHERE course = courseID) < (SELECT capacity FROM LimitedCourses where code = courseID)) THEN
+            -- Check if there are students in the waitinglist
+            IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID AND position = 1)) THEN
+                SELECT student, position INTO tempStudent, oldPosition 
+                FROM WaitingList WHERE course = courseID AND position = 1;
                 -- remove from waitinglist
                 DELETE FROM WaitingList WHERE student = tempStudent AND course = courseID;
                 -- add to registered
                 INSERT INTO Registered (student, course) VALUES (tempStudent, courseID);
+                UPDATE WaitingList SET position = position - 1 WHERE course = courseID AND position > oldPosition;
             END IF;
         END IF;
+
     ELSIF (EXISTS (SELECT FROM WaitingList WHERE student = studentID AND course = courseID)) THEN
         -- save position of student in waitinglist
         SELECT position INTO oldPosition FROM WaitingList WHERE course = courseID AND student = studentID;
         DELETE FROM WaitingList WHERE student = studentID AND course = courseID;
+        UPDATE WaitingList SET position = position - 1 WHERE course = courseID AND position > oldPosition;
     ELSE
         RAISE EXCEPTION 'Student is not registered to the course';
     END IF;
 
-    -- if there are more students in waitinglist update position
-    IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID AND position > oldPosition)) THEN
-        -- update position of students in waitinglist
-        UPDATE WaitingList SET position = position - 1 WHERE course = courseID AND position > oldPosition;
-    END IF;
-
-    RETURN COALESCE(NEW, OLD);
+    RETURN OLD;
 
 END;
 $$ LANGUAGE plpgsql;
