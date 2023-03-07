@@ -1,9 +1,9 @@
-CREATE  VIEW CourseQueuePositions AS
+CREATE OR REPLACE VIEW CourseQueuePositions AS
 SELECT course, student, position AS place
 FROM Waitinglist;
 
 
-CREATE FUNCTION register() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION register() RETURNS trigger AS $$
 
 DECLARE Cnt INTEGER;
 
@@ -50,11 +50,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE FUNCTION unregister() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION unregister() RETURNS trigger AS $$
 
 DECLARE studentID char(10) DEFAULT OLD.student;
 DECLARE courseID char(6) DEFAULT OLD.course;
-DECLARE oldPosition int DEFAULT OLD.position;
+DECLARE oldPosition int;
 
 DECLARE tempStudent char(10);
 
@@ -64,24 +64,35 @@ BEGIN
         -- delete student from registered
         DELETE FROM Registered WHERE student = studentID AND course = courseID;
 
-        -- check if there are empty spots for the course
-        IF ((SELECT COUNT(*) FROM Registered WHERE course = courseID) < (SELECT capacity FROM LimitedCourses where code = courseID)) THEN
-            -- Check if there are students in the waitinglist
-            IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID AND position = 1)) THEN
-                SELECT student, position INTO tempStudent, oldPosition 
-                FROM WaitingList WHERE course = courseID AND position = 1;
-                -- remove from waitinglist
-                DELETE FROM WaitingList WHERE student = tempStudent AND course = courseID;
-                -- add to registered
-                INSERT INTO Registered (student, course) VALUES (tempStudent, courseID);
-                UPDATE WaitingList SET position = position - 1 WHERE course = courseID AND position > oldPosition;
+        -- Check if course is limited
+        IF (EXISTS SELECT course FROM Registered  WHERE student = studentID AND course = courseID) IN (SELECT code FROM LimitedCourses)
+
+            -- check if there are empty spots for the course
+            IF ((SELECT COUNT(*) FROM Registered WHERE course = courseID) < (SELECT capacity FROM LimitedCourses where code = courseID)) THEN
+
+                -- Check if there are students in the waitinglist
+                IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID AND position = 1)) THEN
+                    SELECT student INTO tempStudent 
+                    FROM WaitingList WHERE course = courseID AND position = 1;
+
+                    -- remove from waitinglist
+                    DELETE FROM WaitingList WHERE student = tempStudent AND course = courseID;
+
+                    -- add to registered
+                    INSERT INTO Registered (student, course) VALUES (tempStudent, courseID);
+                    UPDATE WaitingList SET position = position - 1 WHERE course = courseID AND position > 1;
+                END IF;
             END IF;
         END IF;
 
+    -- check if student is on the waiting list
     ELSIF (EXISTS (SELECT FROM WaitingList WHERE student = studentID AND course = courseID)) THEN
+
         -- save position of student in waitinglist
         SELECT position INTO oldPosition FROM WaitingList WHERE course = courseID AND student = studentID;
         DELETE FROM WaitingList WHERE student = studentID AND course = courseID;
+
+        -- Lower all students position after the removed student
         UPDATE WaitingList SET position = position - 1 WHERE course = courseID AND position > oldPosition;
     ELSE
         RAISE EXCEPTION 'Student is not registered to the course';
@@ -93,12 +104,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE TRIGGER register
+CREATE OR REPLACE TRIGGER register
     INSTEAD OF INSERT ON Registrations
     FOR EACH ROW
     EXECUTE FUNCTION register();
 
-CREATE TRIGGER unregister
+CREATE OR REPLACE TRIGGER unregister
     INSTEAD OF DELETE ON Registrations
     FOR EACH ROW
     EXECUTE FUNCTION unregister();

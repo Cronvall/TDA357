@@ -1,10 +1,10 @@
 --TEST #1: Register for an unlimited course.
 -- EXPECTED OUTCOME: Pass
-INSERT INTO Registrations VALUES ('2222222222', 'CCC111'); 
+INSERT INTO Registrations VALUES ('6666666666', 'CCC555'); 
 
 --TEST #2: Register for a limited course that is not full.
 -- EXPECTED OUTCOME: Pass
-INSERT INTO Registrations VALUES ('4444444444', 'CCC555'); 
+INSERT INTO Registrations VALUES ('7777777777', 'CCC111'); 
 
 --TEST #3: Register for a limited course that is full.
 -- EXPECTED OUTCOME: Pass
