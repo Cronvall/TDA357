@@ -32,7 +32,7 @@ DELETE FROM Registrations WHERE student = '1111111111' AND course = 'CCC333';
 
 -- TEST #9: Unregister from an limited course where the student is in on the waitinglist. 
 -- EXPECTED OUTCOME: Pass
-DELETE FROM Registrations WHERE student = '6666666666' AND course = 'CCC333';
+DELETE FROM Registrations WHERE student = '7777777777' AND course = 'CCC333';
 
 --TEST #10: Register a student to a course where it did not fulfill prerequisites.
 -- EXPECTED OUTCOME: Fail
