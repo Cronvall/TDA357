@@ -61,27 +61,24 @@ DECLARE tempStudent char(10);
 BEGIN
     -- check if student is registered to course
     IF (EXISTS (SELECT * FROM Registered WHERE student = studentID AND course = courseID)) THEN
+    
         -- delete student from registered
         DELETE FROM Registered WHERE student = studentID AND course = courseID;
 
-        -- Check if course is limited
-        IF (SELECT course FROM Registered  WHERE student = studentID AND course = courseID) IN (SELECT code FROM LimitedCourses) THEN
+        -- check if course is limited and if there are empty spots for the course
+        IF ((SELECT COUNT(*) FROM Registered WHERE course = courseID) < (SELECT capacity FROM LimitedCourses where code = courseID)) THEN
 
-            -- check if there are empty spots for the course
-            IF ((SELECT COUNT(*) FROM Registered WHERE course = courseID) < (SELECT capacity FROM LimitedCourses where code = courseID)) THEN
+            -- Check if there are students in the waitinglist
+            IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID AND position = 1)) THEN
+                SELECT student INTO tempStudent 
+                FROM WaitingList WHERE course = courseID AND position = 1;
 
-                -- Check if there are students in the waitinglist
-                IF (EXISTS (SELECT * FROM WaitingList WHERE course = courseID AND position = 1)) THEN
-                    SELECT student INTO tempStudent 
-                    FROM WaitingList WHERE course = courseID AND position = 1;
+                -- remove from waitinglist
+                DELETE FROM WaitingList WHERE student = tempStudent AND course = courseID;
 
-                    -- remove from waitinglist
-                    DELETE FROM WaitingList WHERE student = tempStudent AND course = courseID;
-
-                    -- add to registered
-                    INSERT INTO Registered (student, course) VALUES (tempStudent, courseID);
-                    UPDATE WaitingList SET position = position - 1 WHERE course = courseID AND position > 1;
-                END IF;
+                -- add to registered
+                INSERT INTO Registered (student, course) VALUES (tempStudent, courseID);
+                UPDATE WaitingList SET position = position - 1 WHERE course = courseID AND position > 1;
             END IF;
         END IF;
 
