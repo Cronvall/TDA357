@@ -1,12 +1,3 @@
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public;
-GRANT ALL ON SCHEMA public TO CURRENT_USER;
-
-\ir tables.sql
-\ir inserts.sql
-\ir views.sql
-\i triggers.sql
-
 --TEST #1: Register for an unlimited course.
 -- EXPECTED OUTCOME: Pass
 INSERT INTO Registrations VALUES ('2222222222', 'CCC111'); 
