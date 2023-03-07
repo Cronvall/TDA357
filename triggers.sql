@@ -65,7 +65,7 @@ BEGIN
         DELETE FROM Registered WHERE student = studentID AND course = courseID;
 
         -- Check if course is limited
-        IF (EXISTS SELECT course FROM Registered  WHERE student = studentID AND course = courseID) IN (SELECT code FROM LimitedCourses)
+        IF (SELECT course FROM Registered  WHERE student = studentID AND course = courseID) IN (SELECT code FROM LimitedCourses) THEN
 
             -- check if there are empty spots for the course
             IF ((SELECT COUNT(*) FROM Registered WHERE course = courseID) < (SELECT capacity FROM LimitedCourses where code = courseID)) THEN
