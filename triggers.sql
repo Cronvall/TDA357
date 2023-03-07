@@ -1,9 +1,9 @@
-CREATE OR REPLACE VIEW CourseQueuePositions AS
+CREATE VIEW CourseQueuePositions AS
 SELECT course, student, position AS place
 FROM Waitinglist;
 
 
-CREATE OR REPLACE FUNCTION register() RETURNS trigger AS $$
+CREATE FUNCTION register() RETURNS trigger AS $$
 
 DECLARE Cnt INTEGER;
 
@@ -50,7 +50,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION unregister() RETURNS trigger AS $$
+CREATE FUNCTION unregister() RETURNS trigger AS $$
 
 DECLARE studentID char(10) DEFAULT OLD.student;
 DECLARE courseID char(6) DEFAULT OLD.course;
@@ -61,7 +61,7 @@ DECLARE tempStudent char(10);
 BEGIN
     -- check if student is registered to course
     IF (EXISTS (SELECT * FROM Registered WHERE student = studentID AND course = courseID)) THEN
-    
+
         -- delete student from registered
         DELETE FROM Registered WHERE student = studentID AND course = courseID;
 
@@ -84,7 +84,6 @@ BEGIN
 
     -- check if student is on the waiting list
     ELSIF (EXISTS (SELECT FROM WaitingList WHERE student = studentID AND course = courseID)) THEN
-
         -- save position of student in waitinglist
         SELECT position INTO oldPosition FROM WaitingList WHERE course = courseID AND student = studentID;
         DELETE FROM WaitingList WHERE student = studentID AND course = courseID;
@@ -101,12 +100,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE TRIGGER register
+CREATE TRIGGER register
     INSTEAD OF INSERT ON Registrations
     FOR EACH ROW
     EXECUTE FUNCTION register();
 
-CREATE OR REPLACE TRIGGER unregister
+CREATE TRIGGER unregister
     INSTEAD OF DELETE ON Registrations
     FOR EACH ROW
     EXECUTE FUNCTION unregister();
